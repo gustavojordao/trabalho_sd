@@ -23,6 +23,7 @@ using namespace std;
 class Mensagem {
 public:
     Mensagem();
+    Mensagem(char* mensagem);
     Mensagem(const Mensagem& orig);
     virtual ~Mensagem();
     

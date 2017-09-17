@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include "Mensagem.h"
 
 class Servidor {
 public:
@@ -37,9 +39,9 @@ public:
     void encerrar();
     
     // Envia mensagem ao cliente
-    void enviar();
+    int enviar(int maquina, Mensagem mensagem);
     // Recebe mensagem do cliente
-    void receber();
+    Mensagem* receber(int maquina);
 
 protected:
     // Insere cliente no array

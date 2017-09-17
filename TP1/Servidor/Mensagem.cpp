@@ -16,6 +16,12 @@
 Mensagem::Mensagem() {
 }
 
+Mensagem::Mensagem(char* mensagem){
+    char txt[255];
+    sscanf(mensagem, "%d|%s", &this->codigo, txt);
+    this->texto = *(new string(txt));
+}
+
 Mensagem::Mensagem(const Mensagem& orig) {
 }
 

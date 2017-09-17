@@ -64,12 +64,26 @@ void Servidor::encerrar(){
     ::close(conexao);
 }
 
-void Servidor::enviar(){
+int Servidor::enviar(int maquina, Mensagem mensagem){
+    int numBytes = 0;
+    char msg[255]; 
+    mensagem.toChar(msg);
+    if(clientes[maquina] != -1)
+        numBytes = ::send(clientes[maquina], msg, strlen(msg), 0);
     
+    return numBytes;
 }
 
-void Servidor::receber(){
+Mensagem* Servidor::receber(int maquina){
+    int numBytes = 0;
+    char msg[255]; 
+    if(clientes[maquina] != -1)
+        numBytes = ::recv(clientes[maquina], msg, 255, 0);
     
+    if(numBytes > 0)
+        return new Mensagem(msg);
+    else
+        return NULL;    
 }
 
 int Servidor::insereCliente(int cliente){
