@@ -43,6 +43,8 @@ public:
     // Recebe mensagem do cliente
     Mensagem* receber(int maquina);
 
+    void setConexao(int conexao);
+    
 protected:
     // Insere cliente no array
     int insereCliente(int cliente);

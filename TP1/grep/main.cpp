@@ -30,9 +30,9 @@ int main(int argc, char** argv) {
 
     if(argc < 2){
         printf("Parâmetros insuficientes: entre com o texto a ser buscado.\n");
-        printf("%s <TEXTO>\n", argv[0]);
-        printf("Exemplo: %s \"falha\"\n", argv[0]);
-        return 1;
+        //printf("%s <TEXTO>\n", argv[0]);
+        //printf("Exemplo: %s \"falha\"\n", argv[0]);
+        //return 1;
     }
     else if(strcmp(argv[1], "--help")){
         printf("Busca de texto: \n");
@@ -46,23 +46,40 @@ int main(int argc, char** argv) {
     }
     else{
         Cliente* cliente = new Cliente(8001);
-        
+ printf("\nConectar...");       
         cliente->conectar();
-        
+ printf("Ok\n");       
+
+ printf("\nEnviar...");       
+        // TODO: Tratar Mensagem
+        // Envia solicitação de grep distribuído
+        cliente->enviar(new Mensagem("01|Gustavo"));
+ printf("Ok\n");       
+ 
+ printf("\nReceber...");       
         // TODO: Tratar Mensagem
         // Recebe solicitação de execução de comando grep local
         Mensagem* m = cliente->receber();
         // Executa comando grep local
-        execv("grep", argv); // TODO: Rever
-        
+        //execv("grep", argv); // TODO: Rever
+ printf("Ok\n");       
+
+  printf("\nEnviar...");       
+
         // TODO: Tratar Mensagem
         // Envia resultado do comando grep local
-        cliente->enviar(new Mensagem());
+        cliente->enviar(m);
+ printf("Ok\n");       
         
+ printf("\nReceber...");       
         // Recebe resultado de grep distribuído
-        cliente->receber();
+        m = cliente->receber();
         // Exibe resultado de grep distribuído        
-        printf("a");
+ printf("Ok\n");       
+        
+        char msg[255]; 
+        m->toChar(msg);///
+        printf("Mensagem: %s", msg);
         
         cliente->encerrar();
         

@@ -23,15 +23,33 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    Servidor* servidor = new Servidor(8000);
+    if(argc < 2){
+        printf("Parâmetros insuficientes: entre com a porta do servidor.\n");
+        printf("%s <PORTA>\n", argv[0]);
+        printf("Exemplo: %s 8000\n", argv[0]);
+        //return 1;
+    }
+    
+    int porta = 8000;//atoi(argv[1]);
+    
+    Servidor* servidor = new Servidor(porta);
+    
+    printf("Iniciando servidor na porta %d...", porta);
     
     servidor->iniciar();
     
+    printf("Ok\n");
+    
     int filho = 0;
     
-    int cliente = servidor->aceitarCliente();
-    
     while(true){
+        
+        printf("\nAguardando cliente...");
+        
+        int cliente = servidor->aceitarCliente();
+    
+        printf("\nCliente conectado...Ok");
+                
         if((filho = fork()) < 0){
             perror("Ocorreu um erro criando nova instância no servidor - fork");        
         }
@@ -40,6 +58,16 @@ int main(int argc, char** argv) {
             if(filho == 0){
                 servidor->encerrar();
 
+                servidor->setConexao(cliente);
+                
+                Mensagem* m = servidor->receber(0);
+                
+                servidor->enviar(0, m);
+                
+                m = servidor->receber(0);
+                
+                servidor->enviar(0, m);
+                
                 // Lógica do programa
                 // Envia mensagem para as quatro máquinas solicitando grep
                 // Une os resultados

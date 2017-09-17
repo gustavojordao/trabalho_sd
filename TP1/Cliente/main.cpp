@@ -22,38 +22,52 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    if(argc < 3){
+ printf("Cria0");   
+    /*if(argc < 3){
         printf("Parâmetros insuficientes: entre com o ip e a porta.\n");
-        printf("%s <IP_SERVIDOR> <PORTA_SERVIDOR>", argv[0]);
-        printf("Exemplo: %s 192.168.10.1 8000", argv[0]);
-        return 1;
-    }
+        //printf("%s <IP_SERVIDOR> <PORTA_SERVIDOR>", argv[0]);
+        //printf("Exemplo: %s 192.168.10.1 8000", argv[0]);
+        //return 1;
+    }*/
+ printf("Cria");   
     
-    char* ip_servidor = argv[0];
-    int porta_servidor = atoi(argv[1]);
-    int porta_aplicacao = atoi(argv[2]);
+    //char ip_servidor[255];
+    //strcpy(ip_servidor, "102");//argv[0];
+    int porta_servidor = 8001;//atoi(argv[1]);
+    int porta_aplicacao = 8000; //atoi(argv[2]);
+ printf("Cria2");   
+    Cliente* cliente = new Cliente("1"/*ip_servidor*/, porta_servidor, porta_aplicacao);
     
-    Cliente* cliente = new Cliente(ip_servidor, porta_servidor, porta_aplicacao);
-    
-    cliente->conectarAoServidor();
+    //cliente->conectarAoServidor();
 
     cliente->iniciarGrep();
     
-    while(true){
+    //while(true){
+ printf("\nAceitar...");       
         
         cliente->aceitarGrep();
-        cliente->receberDoGrep();
+ printf("Ok\n");       
+
+  printf("\nReceber...");       
+        Mensagem* m = cliente->receberDoGrep();
+ printf("Ok\n");       
         
         // TODO: Tratar mensagem
-        cliente->enviarAoServidor(new Mensagem());        
-        Mensagem* m = cliente->receberDoServidor();
+        //cliente->enviarAoServidor(new Mensagem());        
+        //m = cliente->receberDoServidor();
         
+ printf("\nEnviar...");       
         // TODO: Tratar mensagem
-        cliente->enviarAoGrep(new Mensagem());
+        cliente->enviarAoGrep(m);
+ printf("Ok\n");       
         cliente->encerrarGrep();
-    }
+        
+        char msg[255]; 
+        m->toChar(msg);///
+        printf("Mensagem: %s", msg);
+    //}
     
-    cliente->encerrarServidor();
+    //cliente->encerrarServidor();
     
     return 0;
 }

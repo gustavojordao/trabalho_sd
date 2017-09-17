@@ -52,8 +52,12 @@ void Servidor::iniciar(){
 int Servidor::aceitarCliente(){
     struct sockaddr * addr;
     socklen_t * addrlen;
-        
+    
+printf("\nVai aceitar");
+    
     int cliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
+
+printf("\nAceitou: %d", cliente);
     
     insereCliente(cliente);
     
@@ -84,6 +88,10 @@ Mensagem* Servidor::receber(int maquina){
         return new Mensagem(msg);
     else
         return NULL;    
+}
+
+void Servidor::setConexao(int conexao){
+    this->conexao = conexao;
 }
 
 int Servidor::insereCliente(int cliente){
