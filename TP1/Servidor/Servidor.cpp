@@ -64,10 +64,10 @@ void Servidor::encerrar(){
     ::close(conexao);
 }
 
-int Servidor::enviar(int maquina, Mensagem mensagem){
+int Servidor::enviar(int maquina, Mensagem* mensagem){
     int numBytes = 0;
     char msg[255]; 
-    mensagem.toChar(msg);
+    mensagem->toChar(msg);
     if(clientes[maquina] != -1)
         numBytes = ::send(clientes[maquina], msg, strlen(msg), 0);
     

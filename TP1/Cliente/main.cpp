@@ -44,10 +44,12 @@ int main(int argc, char** argv) {
         cliente->aceitarGrep();
         cliente->receberDoGrep();
         
-        cliente->enviarAoServidor();        
-        cliente->receberDoServidor();
+        // TODO: Tratar mensagem
+        cliente->enviarAoServidor(new Mensagem());        
+        Mensagem* m = cliente->receberDoServidor();
         
-        cliente->enviarAoGrep();
+        // TODO: Tratar mensagem
+        cliente->enviarAoGrep(new Mensagem());
         cliente->encerrarGrep();
     }
     

@@ -74,22 +74,47 @@ void Cliente::encerrarGrep(){
     close(conexaoGrep);
 }
 
-void Cliente::enviarAoGrep(){
+int Cliente::enviarAoGrep(Mensagem* mensagem){
+    int numBytes = 0;
+    char msg[255]; 
+    mensagem->toChar(msg);
+    numBytes = ::send(conexaoGrep, msg, strlen(msg), 0);
     
+    return numBytes;
 }
 
-void Cliente::receberDoGrep(){
+Mensagem* Cliente::receberDoGrep(){
+    int numBytes = 0;
+    char msg[255]; 
+    numBytes = ::recv(conexaoGrep, msg, 255, 0);
     
+    if(numBytes > 0)
+        return new Mensagem(msg);
+    else
+        return NULL;
 }
 
-void Cliente::enviarAoServidor(){
+int Cliente::enviarAoServidor(Mensagem* mensagem) {
+    int numBytes = 0;
+    char msg[255]; 
+    mensagem->toChar(msg);
+    numBytes = ::send(conexaoServidor, msg, strlen(msg), 0);
     
+    return numBytes;
 }
 
-void Cliente::receberDoServidor(){
     
+Mensagem* Cliente::receberDoServidor(){
+    int numBytes = 0;
+    char msg[255]; 
+    numBytes = ::recv(conexaoServidor, msg, 255, 0);
+    
+    if(numBytes > 0)
+        return new Mensagem(msg);
+    else
+        return NULL;
 }
 
 void Cliente::encerrarServidor(){
-    
+    close(conexaoServidor);
 }

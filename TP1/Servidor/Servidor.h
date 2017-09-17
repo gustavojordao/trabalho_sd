@@ -39,7 +39,7 @@ public:
     void encerrar();
     
     // Envia mensagem ao cliente
-    int enviar(int maquina, Mensagem mensagem);
+    int enviar(int maquina, Mensagem* mensagem);
     // Recebe mensagem do cliente
     Mensagem* receber(int maquina);
 

@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include "Mensagem.h"
 
 class Cliente {
 public:
@@ -30,9 +32,9 @@ public:
     void encerrar();
     
     // Envia mensagem ao daemon cliente
-    void enviar();
+    int enviar(Mensagem* mensagem);
     // Recebe mensagem do daemon cliente
-    void receber();
+    Mensagem* receber();
 
 private:
     int porta;    

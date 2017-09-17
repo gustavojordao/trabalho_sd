@@ -49,12 +49,15 @@ int main(int argc, char** argv) {
         
         cliente->conectar();
         
+        // TODO: Tratar Mensagem
         // Recebe solicitação de execução de comando grep local
-        cliente->receber();
+        Mensagem* m = cliente->receber();
         // Executa comando grep local
         execv("grep", argv); // TODO: Rever
+        
+        // TODO: Tratar Mensagem
         // Envia resultado do comando grep local
-        cliente->enviar();
+        cliente->enviar(new Mensagem());
         
         // Recebe resultado de grep distribuído
         cliente->receber();

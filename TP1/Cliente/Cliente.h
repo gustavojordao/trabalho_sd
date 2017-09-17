@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "Mensagem.h"
 
 class Cliente {
 public:
@@ -36,10 +37,10 @@ public:
     int aceitarGrep();
     
     // Receber do grep
-    void receberDoGrep();
+    Mensagem* receberDoGrep();
     
     // Enviar ao grep
-    void enviarAoGrep();
+    int enviarAoGrep(Mensagem* mensagem);
     
     // Encerra conexao com servidor
     void encerrarGrep();
@@ -49,10 +50,10 @@ public:
     void conectarAoServidor();
     
     // Envia mensagem ao cliente
-    void enviarAoServidor();
+    int enviarAoServidor(Mensagem* mensagem);
     
     // Recebe mensagem do cliente
-    void receberDoServidor();
+    Mensagem* receberDoServidor();
     
     // Encerra conexao com servidor
     void encerrarServidor();
