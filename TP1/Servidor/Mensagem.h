@@ -16,6 +16,8 @@
 
 #include <iostream>
 #include <string>
+#include <stdlib.h>
+#include <stdio.h>
 using namespace std;
 
 class Mensagem {
@@ -23,13 +25,17 @@ public:
     Mensagem();
     Mensagem(const Mensagem& orig);
     virtual ~Mensagem();
+    
+    void toChar(char* resultado);
 private:
 
     int codigo;
+    // 0 - Aplicação Cliente notifica serviço que existe um comando a ser excutado
     // 1 - Cliente solicita log ao servidor
     // 2 - Servidor solicita log ao cliente - uma chamada para cada cliente
     // 3 - Cliente envia log ao servidor - Resposta de 2
     // 4 - Servidor envia log ao cliente - Resposta de 1    
+    // 5 - Cliente envia resultado para a aplicação
     
     string texto;
         

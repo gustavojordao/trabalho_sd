@@ -30,9 +30,10 @@ int main(int argc, char** argv) {
     }
     
     char* ip_servidor = argv[0];
-    int porta = atoi(argv[1]);
+    int porta_servidor = atoi(argv[1]);
+    int porta_aplicacao = atoi(argv[2]);
     
-    Cliente* cliente = new Cliente(ip_servidor, porta);
+    Cliente* cliente = new Cliente(ip_servidor, porta_servidor, porta_aplicacao);
     
     cliente->conectarAoServidor();
 

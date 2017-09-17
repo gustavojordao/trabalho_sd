@@ -27,14 +27,14 @@ Cliente::~Cliente() {
 
 void Cliente::conectar(){
     struct sockaddr_in serv_addr;
-    struct socklen_t * addrlen;
+    socklen_t * addrlen;
     
     serv_addr.sin_family = AF_INET; 
     serv_addr.sin_addr.s_addr = INADDR_ANY; 
     serv_addr.sin_port = htons(porta);
     
     conexao = socket(AF_INET, SOCK_STREAM, 0);
-    if(connect(conexao, (struct sockaddr *) &serv_addr), sizeof(serv_addr) < 0){
+    if(connect(conexao, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
         perror("Ocorreu um erro na conexão - connect");
         exit(1);
     }

@@ -15,7 +15,11 @@
 
 #include "Cliente.h"
 
-#define NOME_ARQUIVO "maquina[.].*[.]log"
+#include <string.h>
+
+//#define NOME_ARQUIVO "maquina[.][0-9]*[.]log"
+#define NOME_ARQUIVO "maquina.1.log"
+
 
 using namespace std;
 
@@ -48,14 +52,14 @@ int main(int argc, char** argv) {
         // Recebe solicitação de execução de comando grep local
         cliente->receber();
         // Executa comando grep local
-        execv("grep", [argv, NOME_ARQUIVO]);
+        execv("grep", argv); // TODO: Rever
         // Envia resultado do comando grep local
         cliente->enviar();
         
         // Recebe resultado de grep distribuído
         cliente->receber();
         // Exibe resultado de grep distribuído        
-        printf("");
+        printf("a");
         
         cliente->encerrar();
         

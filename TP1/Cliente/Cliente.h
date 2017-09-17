@@ -19,10 +19,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 class Cliente {
 public:
-    Cliente(char* ip_servidor, int porta);
+    Cliente(char* ip_servidor, int portaServidor, int portaGrep);
     Cliente(const Cliente& orig);
     virtual ~Cliente();
     
@@ -30,7 +33,7 @@ public:
     void iniciarGrep();
     
     // Aceita conexão do grep
-    void aceitarGrep();
+    int aceitarGrep();
     
     // Receber do grep
     void receberDoGrep();

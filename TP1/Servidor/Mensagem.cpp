@@ -22,3 +22,6 @@ Mensagem::Mensagem(const Mensagem& orig) {
 Mensagem::~Mensagem() {
 }
 
+void Mensagem::toChar(char* resultado){
+    sprintf(resultado, "%d|%s", codigo, texto.data()); 
+}

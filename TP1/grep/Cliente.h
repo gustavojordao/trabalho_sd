@@ -14,6 +14,10 @@
 #ifndef CLIENTE_H
 #define CLIENTE_H
 
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 class Cliente {
 public:
     Cliente(int porta);

@@ -18,7 +18,7 @@ Servidor::Servidor(int porta) {
     
     // Inicializa array de clientes
     for(int i=0; i<MAX_CLIENTES; i++){
-        this->clientes[i] = NULL;
+        this->clientes[i] = -1;
     }
 }
 
@@ -35,25 +35,25 @@ void Servidor::iniciar(){
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
     serv_addr.sin_port = htons(porta);
     
-    struct socklen_t * addrlen;
+    socklen_t * addrlen;
     
     conexao = socket(AF_INET, SOCK_STREAM, 0);
-    if(bind(conexao, (struct sockaddr *) &serv_addr), sizeof(serv_addr) < 0){
+    if(bind(conexao, (struct sockaddr *) &serv_addr, sizeof(serv_addr) < 0)){
         perror("Ocorreu um erro na conexão - bind");
-        exit(1);
+        ::exit(1);
     }
     
     if(listen(conexao, MAX_CLIENTES) != 0){
         perror("Ocorreu um erro na conexão - listen");
-        exit(1);
+        ::exit(1);
     }
 }
 
 int Servidor::aceitarCliente(){
     struct sockaddr * addr;
-    struct socklen_t * addrlen;
+    socklen_t * addrlen;
         
-    int cliente = accept(conexao, addr, addrlen);
+    int cliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
     
     insereCliente(cliente);
     
@@ -61,7 +61,7 @@ int Servidor::aceitarCliente(){
 }
 
 void Servidor::encerrar(){
-    close(conexao);
+    ::close(conexao);
 }
 
 void Servidor::enviar(){
