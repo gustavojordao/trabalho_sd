@@ -41,6 +41,9 @@ int main(int argc, char** argv) {
                 servidor->encerrar();
 
                 // Lógica do programa
+                // Envia mensagem para as quatro máquinas solicitando grep
+                // Une os resultados
+                // Envia para o solicitante
 
             }
         }

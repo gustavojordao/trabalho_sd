@@ -26,22 +26,43 @@ public:
     Cliente(const Cliente& orig);
     virtual ~Cliente();
     
-    // Conectar ao servidor
-    void conectar();
+    // Iniciar servidor do grep
+    void iniciarGrep();
     
-    // Encerra servidor
-    void encerrar();
+    // Aceita conexão do grep
+    void aceitarGrep();
+    
+    // Receber do grep
+    void receberDoGrep();
+    
+    // Enviar ao grep
+    void enviarAoGrep();
+    
+    // Encerra conexao com servidor
+    void encerrarGrep();
+
+
+    // Conectar ao servidor
+    void conectarAoServidor();
     
     // Envia mensagem ao cliente
-    void enviar();
+    void enviarAoServidor();
+    
     // Recebe mensagem do cliente
-    void receber();
+    void receberDoServidor();
+    
+    // Encerra conexao com servidor
+    void encerrarServidor();
+
 private:
 
-    int conexao;
+    int conexaoGrep;
+    int conexaoServidor;
     
     char* ip_servidor;
-    int porta;
+    int portaServidor;
+
+    int portaGrep;
     
 };
 

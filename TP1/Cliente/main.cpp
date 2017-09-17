@@ -22,15 +22,35 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    Cliente* cliente = new Cliente("192.168.10.1", 8000);
+    if(argc < 3){
+        printf("Parâmetros insuficientes: entre com o ip e a porta.\n");
+        printf("%s <IP_SERVIDOR> <PORTA_SERVIDOR>", argv[0]);
+        printf("Exemplo: %s 192.168.10.1 8000", argv[0]);
+        return 1;
+    }
     
-    cliente->conectar();
+    char* ip_servidor = argv[0];
+    int porta = atoi(argv[1]);
+    
+    Cliente* cliente = new Cliente(ip_servidor, porta);
+    
+    cliente->conectarAoServidor();
+
+    cliente->iniciarGrep();
     
     while(true){
         
+        cliente->aceitarGrep();
+        cliente->receberDoGrep();
+        
+        cliente->enviarAoServidor();        
+        cliente->receberDoServidor();
+        
+        cliente->enviarAoGrep();
+        cliente->encerrarGrep();
     }
     
-    cliente->encerrar();
+    cliente->encerrarServidor();
     
     return 0;
 }
