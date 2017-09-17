@@ -38,7 +38,7 @@ void Servidor::iniciar(){
     socklen_t * addrlen;
     
     conexao = socket(AF_INET, SOCK_STREAM, 0);
-    if(bind(conexao, (struct sockaddr *) &serv_addr, sizeof(serv_addr) < 0)){
+    if(bind(conexao, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
         perror("Ocorreu um erro na conexão - bind");
         ::exit(1);
     }
