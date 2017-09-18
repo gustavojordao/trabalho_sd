@@ -23,7 +23,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <vector>
 #include "Mensagem.h"
+
+using namespace std;
 
 class Servidor {
 public:
@@ -44,6 +47,10 @@ public:
     Mensagem* receber(int maquina);
 
     void setConexao(int conexao);
+    
+    void enviarTodos(Mensagem* mensagem);
+    
+    vector<Mensagem*> receberTodos();
     
 protected:
     // Insere cliente no array

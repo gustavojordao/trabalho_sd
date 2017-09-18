@@ -66,18 +66,15 @@ int main(int argc, char** argv) {
                 
                 //--------------------------------------------
                 //Enviar mensagem de solicitação de grep - 2                
-                //servidor->enviarBroadcast(m); TODO: Criar usando comandos dos comentários abaixo
-                    //Para todo cliente i
-                        //servidor->enviar(i, m);
+                servidor->enviarTodos(m);
                 
                 //--------------------------------------------
                 //Receber mensagem de resposta de solicitação de grep - 3 [Resposta de 2]                
-                //(Mensagem*[])servidor->receberBroadcast(); TODO: Criar usando comandos dos comentários abaixo
-                    //Para todo cliente i
-                        //m = servidor->receber(i);
+                vector<Mensagem*> mensagens = servidor->receberTodos();
                 
                 //--------------------------------------------
                 //Agrupa conteúdos das mensagens
+                //m = servidor->agruparMensagens(mensagens); //TODO: Criar método agruparMensagens
                 
                 //--------------------------------------------
                 //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]
