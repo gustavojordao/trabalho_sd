@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
         
         printf("\nAguardando cliente...");
         
-        int cliente = servidor->aceitarCliente();
+        int indice_cliente = servidor->aceitarCliente();
     
         printf("\nCliente conectado...Ok");
                 
@@ -58,25 +58,34 @@ int main(int argc, char** argv) {
             if(filho == 0){
                 servidor->encerrar();
 
-                servidor->setConexao(cliente);
+                servidor->setConexao(indice_cliente);
                 
-                Mensagem* m = servidor->receber(0);
+                //--------------------------------------------
+                //Receber mensagem de solicitação de grep distribuído - 1
+                Mensagem* m = servidor->receber(indice_cliente);
                 
-                servidor->enviar(0, m);
+                //--------------------------------------------
+                //Enviar mensagem de solicitação de grep - 2                
+                //servidor->enviarBroadcast(m); TODO: Criar usando comandos dos comentários abaixo
+                    //Para todo cliente i
+                        //servidor->enviar(i, m);
                 
-                m = servidor->receber(0);
+                //--------------------------------------------
+                //Receber mensagem de resposta de solicitação de grep - 3 [Resposta de 2]                
+                //(Mensagem*[])servidor->receberBroadcast(); TODO: Criar usando comandos dos comentários abaixo
+                    //Para todo cliente i
+                        //m = servidor->receber(i);
                 
-                servidor->enviar(0, m);
+                //--------------------------------------------
+                //Agrupa conteúdos das mensagens
                 
-                // Lógica do programa
-                // Envia mensagem para as quatro máquinas solicitando grep
-                // Une os resultados
-                // Envia para o solicitante
-
+                //--------------------------------------------
+                //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]
+                servidor->enviar(indice_cliente, m);
             }
         }
 
-        close(cliente);
+        servidor->encerrar();
     }
     return 0;
 }

@@ -55,9 +55,7 @@ int Servidor::aceitarCliente(){
     
     conexaoCliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
 
-    insereCliente(conexaoCliente);
-    
-    return conexaoCliente;
+    return insereCliente(conexaoCliente);
 }
 
 void Servidor::encerrar(){
@@ -86,8 +84,9 @@ Mensagem* Servidor::receber(int maquina){
         return NULL;    
 }
 
-void Servidor::setConexao(int conexao){
-    this->conexao = conexao;
+// Recebe o índice de onde se encontra a conexão
+void Servidor::setConexao(int indice){
+    this->conexao = clientes[indice];
 }
 
 int Servidor::insereCliente(int cliente){
