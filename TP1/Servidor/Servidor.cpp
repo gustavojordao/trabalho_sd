@@ -53,15 +53,11 @@ int Servidor::aceitarCliente(){
     struct sockaddr * addr;
     socklen_t * addrlen;
     
-printf("\nVai aceitar");
-    
-    int cliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
+    conexaoCliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
 
-printf("\nAceitou: %d", cliente);
+    insereCliente(conexaoCliente);
     
-    insereCliente(cliente);
-    
-    return cliente;
+    return conexaoCliente;
 }
 
 void Servidor::encerrar(){

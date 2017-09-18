@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
         // TODO: Tratar Mensagem
         // Envia solicitação de grep distribuído
         cliente->enviar(new Mensagem("01|Gustavo"));
- printf("Ok\n");       
- /*
+ printf("Ok\n");
+ 
  printf("\nReceber...");       
         // TODO: Tratar Mensagem
         // Recebe solicitação de execução de comando grep local
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
         // Executa comando grep local
         //execv("grep", argv); // TODO: Rever
  printf("Ok\n");       
-
+/*
   printf("\nEnviar...");       
 
         // TODO: Tratar Mensagem
@@ -76,13 +76,12 @@ int main(int argc, char** argv) {
         m = cliente->receber();
         // Exibe resultado de grep distribuído        
  printf("Ok\n");       
-        
+ */      
         char msg[255]; 
         m->toChar(msg);///
         printf("Mensagem: %s", msg);
         
         cliente->encerrar();
-     */
  
         delete cliente;
     }

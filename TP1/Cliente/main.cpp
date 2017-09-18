@@ -53,24 +53,25 @@ int main(int argc, char** argv) {
         Mensagem* m = cliente->receberDoGrep();
  printf("Ok\n");       
         
+       char msg[255]; 
+        m->toChar(msg);///
+        printf("Mensagem: %s", msg);
+ 
         // TODO: Tratar mensagem
         //cliente->enviarAoServidor(new Mensagem());        
         //m = cliente->receberDoServidor();
- /*       
+        
  printf("\nEnviar...");       
         // TODO: Tratar mensagem
         cliente->enviarAoGrep(m);
  printf("Ok\n");       
         cliente->encerrarGrep();
-   */     
-        char msg[255]; 
-        m->toChar(msg);///
-        printf("Mensagem: %s", msg);
+        
     //}
     
     //cliente->encerrarServidor();
     
-    delete cliente;    
+    //delete cliente;    
         
     return 0;
 }

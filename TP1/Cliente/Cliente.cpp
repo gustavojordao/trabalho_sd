@@ -68,13 +68,17 @@ int Cliente::aceitarGrep(){
     socklen_t * addrlen;
         
     acceptGrep = accept(conexaoGrep, (struct sockaddr *) &serv_addr, addrlen);
-    printf("Accept: %d\n", acceptGrep);
+    
+    if(acceptGrep <= 0){
+        perror("\nNão foi possível aceitar conexão. - accept");
+        return NULL;
+    }
     
     return acceptGrep;
 }
 
 void Cliente::encerrarGrep(){
-    close(conexaoGrep);
+    close(acceptGrep);
 }
 
 int Cliente::enviarAoGrep(Mensagem* mensagem){
@@ -82,6 +86,11 @@ int Cliente::enviarAoGrep(Mensagem* mensagem){
     char msg[255]; 
     mensagem->toChar(msg);
     numBytes = ::send(acceptGrep, msg, strlen(msg), 0);
+    
+    if(numBytes <= 0){
+        perror("\nNão foi possível enviar mensagem. - send");
+        return NULL;
+    }
     
     return numBytes;
 }
@@ -91,14 +100,14 @@ Mensagem* Cliente::receberDoGrep(){
     int numBytes = 0;
     char msg[255];
     
-    printf("\nRecebendo mensagem...");
     numBytes = recv(acceptGrep, msg, 255, 0);
-    printf("Recebendo: %d %s %d %d", acceptGrep, msg, strlen(msg), numBytes);
     
     if(numBytes > 0)
         return new Mensagem(msg);
-    else
+    else{
+        perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
+    }
 }
 
 int Cliente::enviarAoServidor(Mensagem* mensagem) {
@@ -106,6 +115,11 @@ int Cliente::enviarAoServidor(Mensagem* mensagem) {
     char msg[255]; 
     mensagem->toChar(msg);
     numBytes = ::send(conexaoServidor, msg, strlen(msg), 0);
+    
+    if(numBytes <= 0){
+        perror("\nNão foi possível enviar mensagem. - send");
+        return NULL;
+    }
     
     return numBytes;
 }
@@ -118,8 +132,10 @@ Mensagem* Cliente::receberDoServidor(){
     
     if(numBytes > 0)
         return new Mensagem(msg);
-    else
+    else{
+        perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
+    }
 }
 
 void Cliente::encerrarServidor(){

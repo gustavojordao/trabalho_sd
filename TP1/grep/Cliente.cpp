@@ -48,9 +48,13 @@ int Cliente::enviar(Mensagem* mensagem){
     int numBytes = 0;
     char msg[255]; 
     mensagem->toChar(msg);
-    printf("Enviando: %d %s %d", conexao, msg, strlen(msg));
     numBytes = ::send(conexao, msg, strlen(msg), 0);
-    printf("NumBytes: %d", numBytes);
+    
+    if(numBytes <= 0){
+        perror("\nNão foi possível enviar mensagem. - send");
+        return NULL;
+    }
+
     return numBytes;
 }
 
@@ -62,6 +66,8 @@ Mensagem* Cliente::receber(){
     
     if(numBytes > 0)
         return new Mensagem(msg);
-    else
+    else{
+        perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
+    }
 }

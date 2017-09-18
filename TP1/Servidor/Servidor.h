@@ -56,6 +56,7 @@ protected:
     
 private:
     int conexao;
+    int conexaoCliente;
     
     int porta;
     
