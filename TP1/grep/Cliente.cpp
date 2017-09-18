@@ -48,12 +48,14 @@ int Cliente::enviar(Mensagem* mensagem){
     int numBytes = 0;
     char msg[255]; 
     mensagem->toChar(msg);
+    printf("Enviando: %d %s %d", conexao, msg, strlen(msg));
     numBytes = ::send(conexao, msg, strlen(msg), 0);
-    
+    printf("NumBytes: %d", numBytes);
     return numBytes;
 }
 
 Mensagem* Cliente::receber(){
+    sleep(1);
     int numBytes = 0;
     char msg[255]; 
     numBytes = ::recv(conexao, msg, 255, 0);

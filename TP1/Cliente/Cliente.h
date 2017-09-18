@@ -63,7 +63,7 @@ private:
     int conexaoGrep;
     int conexaoServidor;
     
-    char* ip_servidor;
+    char ip_servidor[20];
     int portaServidor;
 
     int portaGrep;

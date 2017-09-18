@@ -28,7 +28,7 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
-    if(argc < 2){
+/*    if(argc < 2){
         printf("Parâmetros insuficientes: entre com o texto a ser buscado.\n");
         //printf("%s <TEXTO>\n", argv[0]);
         //printf("Exemplo: %s \"falha\"\n", argv[0]);
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         printf("Exemplo: %s -e \"[0-9]*\"\n", argv[0]);
         printf("Exemplo acima busca números.");
     }
-    else{
+    else*/{
         Cliente* cliente = new Cliente(8001);
  printf("\nConectar...");       
         cliente->conectar();
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
         // Envia solicitação de grep distribuído
         cliente->enviar(new Mensagem("01|Gustavo"));
  printf("Ok\n");       
- 
+ /*
  printf("\nReceber...");       
         // TODO: Tratar Mensagem
         // Recebe solicitação de execução de comando grep local
@@ -82,7 +82,9 @@ int main(int argc, char** argv) {
         printf("Mensagem: %s", msg);
         
         cliente->encerrar();
-        
+     */
+ 
+        delete cliente;
     }
     
     return 0;

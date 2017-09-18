@@ -14,9 +14,11 @@
 #include "Cliente.h"
 
 Cliente::Cliente(char* ip_servidor, int portaServidor, int portaGrep) {
-    strcpy(this->ip_servidor, ip_servidor);
+    printf("Servidor %s", ip_servidor);
+    
     this->portaServidor = portaServidor;
     this->portaGrep = portaGrep;
+    strcpy(this->ip_servidor, ip_servidor);
 }
 
 Cliente::Cliente(const Cliente& orig) {
@@ -84,10 +86,15 @@ int Cliente::enviarAoGrep(Mensagem* mensagem){
 }
 
 Mensagem* Cliente::receberDoGrep(){
+    sleep(1);
     int numBytes = 0;
-    char msg[255]; 
-    numBytes = ::recv(conexaoGrep, msg, 255, 0);
+    char msg[255];
     
+    while(numBytes <= 0){
+        printf("\nRecebendo mensagem...");
+        numBytes = recv(conexaoGrep, msg, 255, 0);
+        printf("Recebendo: %d %s %d %d", conexaoGrep, msg, strlen(msg), numBytes);
+    }
     if(numBytes > 0)
         return new Mensagem(msg);
     else

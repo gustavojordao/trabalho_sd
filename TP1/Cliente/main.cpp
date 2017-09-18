@@ -12,6 +12,7 @@
  */
 
 #include <cstdlib>
+#include <unistd.h>
 
 #include "Cliente.h"
 
@@ -31,12 +32,12 @@ int main(int argc, char** argv) {
     }*/
  printf("Cria");   
     
-    //char ip_servidor[255];
-    //strcpy(ip_servidor, "102");//argv[0];
-    int porta_servidor = 8001;//atoi(argv[1]);
-    int porta_aplicacao = 8000; //atoi(argv[2]);
+    char ip_servidor[255];
+    strcpy(ip_servidor, "102");//argv[1];
+    int porta_servidor = 8000;//atoi(argv[2]);
+    int porta_aplicacao = 8001; //atoi(argv[3]);
  printf("Cria2");   
-    Cliente* cliente = new Cliente("1"/*ip_servidor*/, porta_servidor, porta_aplicacao);
+    Cliente* cliente = new Cliente(ip_servidor, porta_servidor, porta_aplicacao);
     
     //cliente->conectarAoServidor();
 
@@ -55,13 +56,13 @@ int main(int argc, char** argv) {
         // TODO: Tratar mensagem
         //cliente->enviarAoServidor(new Mensagem());        
         //m = cliente->receberDoServidor();
-        
+ /*       
  printf("\nEnviar...");       
         // TODO: Tratar mensagem
         cliente->enviarAoGrep(m);
  printf("Ok\n");       
         cliente->encerrarGrep();
-        
+   */     
         char msg[255]; 
         m->toChar(msg);///
         printf("Mensagem: %s", msg);
@@ -69,6 +70,8 @@ int main(int argc, char** argv) {
     
     //cliente->encerrarServidor();
     
+    delete cliente;    
+        
     return 0;
 }
 
