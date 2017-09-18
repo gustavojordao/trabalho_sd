@@ -64,12 +64,13 @@ void Cliente::iniciarGrep(){
 }
 
 int Cliente::aceitarGrep(){
-    struct sockaddr * addr;
+    struct sockaddr_in serv_addr;
     socklen_t * addrlen;
         
-    int cliente = accept(conexaoGrep, addr, addrlen);
+    acceptGrep = accept(conexaoGrep, (struct sockaddr *) &serv_addr, addrlen);
+    printf("Accept: %d\n", acceptGrep);
     
-    return cliente;
+    return acceptGrep;
 }
 
 void Cliente::encerrarGrep(){
@@ -80,7 +81,7 @@ int Cliente::enviarAoGrep(Mensagem* mensagem){
     int numBytes = 0;
     char msg[255]; 
     mensagem->toChar(msg);
-    numBytes = ::send(conexaoGrep, msg, strlen(msg), 0);
+    numBytes = ::send(acceptGrep, msg, strlen(msg), 0);
     
     return numBytes;
 }
@@ -90,11 +91,10 @@ Mensagem* Cliente::receberDoGrep(){
     int numBytes = 0;
     char msg[255];
     
-    while(numBytes <= 0){
-        printf("\nRecebendo mensagem...");
-        numBytes = recv(conexaoGrep, msg, 255, 0);
-        printf("Recebendo: %d %s %d %d", conexaoGrep, msg, strlen(msg), numBytes);
-    }
+    printf("\nRecebendo mensagem...");
+    numBytes = recv(acceptGrep, msg, 255, 0);
+    printf("Recebendo: %d %s %d %d", acceptGrep, msg, strlen(msg), numBytes);
+    
     if(numBytes > 0)
         return new Mensagem(msg);
     else

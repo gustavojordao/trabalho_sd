@@ -61,6 +61,7 @@ public:
 private:
 
     int conexaoGrep;
+    int acceptGrep;
     int conexaoServidor;
     
     char ip_servidor[20];
