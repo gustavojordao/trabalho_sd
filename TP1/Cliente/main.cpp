@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
         
         //--------------------------------------------
         //Enviar mensagem de resposta da solicitação de grep local - 3 [Resposta de 2]
-        m = new Mensagem(3, result.data()); //TODO: Substituir "" por resultado do grep local (execv)
+        m = new Mensagem(3, result.data());
         //cliente->enviarAoServidor(m);        
 
         //--------------------------------------------
