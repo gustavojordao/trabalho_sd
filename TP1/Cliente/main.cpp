@@ -16,6 +16,10 @@
 
 #include "Cliente.h"
 #include "Mensagem.h"
+#include <fstream>
+#include <iostream>
+
+#define NOME_ARQUIVO "maquina.[0-9].log"
 
 using namespace std;
 
@@ -66,14 +70,20 @@ int main(int argc, char** argv) {
         //Receber mensagem do servidor solicitando grep local - 2
         //m = cliente->receberDoServidor();
         
-        // TODO: criar comando
         //--------------------------------------------
         //Executar grep local
-        //execv()
+        string comando = m->getTexto() + " " + NOME_ARQUIVO + " > log.temp";
+        system(comando.data());
+        std::ifstream arq("log.temp");
+        string buffer;
+        string result;
+        while(getline(arq, buffer)){
+            result += buffer;
+        }
         
         //--------------------------------------------
         //Enviar mensagem de resposta da solicitação de grep local - 3 [Resposta de 2]
-        m = new Mensagem(3, ""); //TODO: Substituir "" por resultado do grep local (execv)
+        m = new Mensagem(3, result.data()); //TODO: Substituir "" por resultado do grep local (execv)
         //cliente->enviarAoServidor(m);        
 
         //--------------------------------------------

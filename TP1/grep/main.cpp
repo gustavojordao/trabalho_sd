@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     else*/{
         char argumentos[255];
         
-        strcpy(argumentos, "");
+        sprintf(argumentos, "grep");
         /*
         for(int i=1; i<argc; i++){
             sprintf(argumentos, "%s %s", argumentos, argv[i]);
