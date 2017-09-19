@@ -68,6 +68,7 @@ int main(int argc, char** argv) {
                 
                 //--------------------------------------------
                 //Enviar mensagem de solicitação de grep - 2                
+                m->setCodigo(2);
                 servidor->enviarTodos(m);
                 
                 //--------------------------------------------
@@ -80,6 +81,7 @@ int main(int argc, char** argv) {
                 
                 //--------------------------------------------
                 //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]
+                m->setCodigo(4);
                 servidor->enviar(indice_cliente, m);
             }
         }

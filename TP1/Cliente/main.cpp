@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "Cliente.h"
+#include "Mensagem.h"
 
 using namespace std;
 
@@ -58,6 +59,7 @@ int main(int argc, char** argv) {
  
         //--------------------------------------------
         //Enviar mensagem ao servidor solicitando grep distribuído - 1
+        m->setCodigo(1);
         //cliente->enviarAoServidor(m);        
  
         //--------------------------------------------
@@ -71,7 +73,7 @@ int main(int argc, char** argv) {
         
         //--------------------------------------------
         //Enviar mensagem de resposta da solicitação de grep local - 3 [Resposta de 2]
-        //m = new Mensagem();
+        m = new Mensagem(3, ""); //TODO: Substituir "" por resultado do grep local (execv)
         //cliente->enviarAoServidor(m);        
 
         //--------------------------------------------
@@ -81,7 +83,7 @@ int main(int argc, char** argv) {
         //--------------------------------------------
         //Enviar mensagem à aplicação com resposta de grep distribuído - 5 [Resposta de 0]
  printf("\nEnviar...");       
-        m = new Mensagem();
+        m->setCodigo(5);
         cliente->enviarAoGrep(m);
  printf("Ok\n");
  
