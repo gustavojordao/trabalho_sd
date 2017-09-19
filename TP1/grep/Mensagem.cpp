@@ -16,6 +16,11 @@
 Mensagem::Mensagem() {
 }
 
+Mensagem::Mensagem(int codigo, string texto=""){
+    this->codigo = codigo;
+    this->texto = texto;
+}
+
 Mensagem::Mensagem(char* mensagem){
     char txt[255];
     sscanf(mensagem, "%d|%s", &this->codigo, txt);
@@ -30,4 +35,20 @@ Mensagem::~Mensagem() {
 
 void Mensagem::toChar(char* resultado){
     sprintf(resultado, "%d|%s", codigo, texto.data()); 
+}
+
+int Mensagem::getCodigo(){
+    return this->codigo;
+}
+    
+void Mensagem::setCodigo(int codigo){
+    this->codigo = codigo;
+}
+
+string Mensagem::getTexto(){
+    return this->texto;
+}
+
+void Mensagem::setTexto(string texto){
+    this->texto = texto;
 }

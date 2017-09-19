@@ -55,6 +55,10 @@ int Servidor::aceitarCliente(){
     
     conexaoCliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
 
+    if(conexaoCliente <= 0){
+        perror("\nNão foi possível aceitar conexão. - accept");
+    }
+    
     return insereCliente(conexaoCliente);
 }
 
@@ -94,10 +98,13 @@ void Servidor::enviarTodos(Mensagem* mensagem){
 
 vector<Mensagem*> Servidor::receberTodos(){
     vector<Mensagem*>* mensagens = new vector<Mensagem*>();
+    char str[50];
     
     for(int i=0; i<MAX_CLIENTES; i++){
         if(clientes[i] != -1){
             Mensagem* m = receber(i);
+            sprintf(str, "----------\nMaquina %d\n----------\n", i);
+            m->setTexto(str + m->getTexto());
             mensagens->push_back(m);
         }
     }
@@ -108,6 +115,14 @@ vector<Mensagem*> Servidor::receberTodos(){
 // Recebe o índice de onde se encontra a conexão
 void Servidor::setConexao(int indice){
     this->conexao = clientes[indice];
+}
+
+Mensagem* Servidor::agruparMensagens(vector<Mensagem*> mensagens){
+    Mensagem* m = new Mensagem(3, "");
+    
+    for(int i=0; i<mensagens.size(); i++){
+        m->setTexto(m->getTexto() + "\n\n");
+    }
 }
 
 int Servidor::insereCliente(int cliente){

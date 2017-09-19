@@ -52,7 +52,6 @@ int Cliente::enviar(Mensagem* mensagem){
     
     if(numBytes <= 0){
         perror("\nNão foi possível enviar mensagem. - send");
-        return NULL;
     }
 
     return numBytes;

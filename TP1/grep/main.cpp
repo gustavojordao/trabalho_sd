@@ -45,6 +45,17 @@ int main(int argc, char** argv) {
         printf("Exemplo acima busca números.");
     }
     else*/{
+        char argumentos[255];
+        
+        strcpy(argumentos, "");
+        /*
+        for(int i=1; i<argc; i++){
+            sprintf(argumentos, "%s %s", argumentos, argv[i]);
+        }
+        */
+        
+        string str_argumentos = argumentos;
+                
         Cliente* cliente = new Cliente(8001);
 printf("\nConectar...");       
         cliente->conectar();
@@ -53,7 +64,7 @@ printf("Ok\n");
         //--------------------------------------------
         //Enviar mensagem ao cliente solicitando grep distribuído - 0
 printf("\nEnviar...");       
-        cliente->enviar(new Mensagem("01|Gustavo"));
+        cliente->enviar(new Mensagem(0, str_argumentos));
 printf("Ok\n");
  
 printf("\nReceber...");       

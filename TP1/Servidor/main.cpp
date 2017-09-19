@@ -39,13 +39,15 @@ int main(int argc, char** argv) {
     servidor->iniciar();
     
     printf("Ok\n");
+    fflush(stdout);
     
     int filho = 0;
-    
+
     while(true){
         
         printf("\nAguardando cliente...");
-        
+        fflush(stdout);
+                
         int indice_cliente = servidor->aceitarCliente();
     
         printf("\nCliente conectado...Ok");
@@ -74,7 +76,7 @@ int main(int argc, char** argv) {
                 
                 //--------------------------------------------
                 //Agrupa conteúdos das mensagens
-                //m = servidor->agruparMensagens(mensagens); //TODO: Criar método agruparMensagens
+                m = servidor->agruparMensagens(mensagens);
                 
                 //--------------------------------------------
                 //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]

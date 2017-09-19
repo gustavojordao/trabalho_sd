@@ -23,11 +23,21 @@ using namespace std;
 class Mensagem {
 public:
     Mensagem();
+    Mensagem(int codigo, string texto);
     Mensagem(char* mensagem);
     Mensagem(const Mensagem& orig);
     virtual ~Mensagem();
     
     void toChar(char* resultado);
+    
+    int getCodigo();
+    
+    void setCodigo(int codigo);
+    
+    string getTexto();
+    
+    void setTexto(string texto);
+        
 private:
 
     int codigo;

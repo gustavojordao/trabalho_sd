@@ -52,6 +52,8 @@ public:
     
     vector<Mensagem*> receberTodos();
     
+    Mensagem* agruparMensagens(vector<Mensagem*> mensagens);
+    
 protected:
     // Insere cliente no array
     int insereCliente(int cliente);

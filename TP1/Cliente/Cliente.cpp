@@ -71,7 +71,6 @@ int Cliente::aceitarGrep(){
     
     if(acceptGrep <= 0){
         perror("\nNão foi possível aceitar conexão. - accept");
-        return NULL;
     }
     
     return acceptGrep;
