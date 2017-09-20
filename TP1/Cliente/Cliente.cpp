@@ -65,9 +65,9 @@ void Cliente::iniciarGrep(){
 
 int Cliente::aceitarGrep(){
     struct sockaddr_in serv_addr;
-    socklen_t * addrlen;
+    socklen_t addrlen = sizeof(serv_addr);;
         
-    acceptGrep = accept(conexaoGrep, (struct sockaddr *) &serv_addr, addrlen);
+    acceptGrep = accept(conexaoGrep, (struct sockaddr *) &serv_addr, &addrlen);
     
     if(acceptGrep <= 0){
         perror("\nNão foi possível aceitar conexão. - accept");

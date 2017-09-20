@@ -51,8 +51,8 @@ int main(int argc, char** argv) {
                 
         int indice_cliente = servidor->aceitarCliente();
         
-        printf("Pressione qualquer tecla para continuar...");
-        getchar();
+        //printf("Pressione qualquer tecla para continuar...");
+        //getchar();
         
         if(indice_cliente >= 0){
         

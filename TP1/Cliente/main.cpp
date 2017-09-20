@@ -53,35 +53,48 @@ fflush(stdout);
 printf("Ok\n");
 fflush(stdout);
 
+    int filho = 0;
+
     while(true){
+        Mensagem* m = new Mensagem();
+        
+        if((filho = fork()) < 0){
+            perror("Ocorreu um erro criando nova instância no servidor - fork");        
+        }
+        else{
+            
+            // Processo filho
+            if(filho == 0){
 printf("\nAceitar...");              
 fflush(stdout);
-        int conexaoGrep = cliente->aceitarGrep();
+                int conexaoGrep = cliente->aceitarGrep();
 printf("Ok - Cliente %d\n", conexaoGrep);       
 fflush(stdout);
 
-        //--------------------------------------------
-        //Receber mensagem de solicitação de grep distribuído - 0
- 
+                //--------------------------------------------
+                //Receber mensagem de solicitação de grep distribuído - 0
+
 printf("\nReceber...");       
 fflush(stdout);
-        Mensagem* m = cliente->receberDoGrep();
+                m = cliente->receberDoGrep();
 printf("Ok\n");       
 fflush(stdout);
 
-        char msg[255]; 
-        m->toChar(msg);///
-        printf("Mensagem: %s", msg);
-        fflush(stdout);
+                char msg[255]; 
+                m->toChar(msg);///
+                printf("Mensagem: %s", msg);
+                fflush(stdout);
 
-        //--------------------------------------------
-        //Enviar mensagem ao servidor solicitando grep distribuído - 1
-        m->setCodigo(1);
-        //cliente->enviarAoServidor(m);        
- 
+                //--------------------------------------------
+                //Enviar mensagem ao servidor solicitando grep distribuído - 1
+                m->setCodigo(1);
+                cliente->enviarAoServidor(m);
+            }
+        }
+        
         //--------------------------------------------
         //Receber mensagem do servidor solicitando grep local - 2
-        //m = cliente->receberDoServidor();
+        m = cliente->receberDoServidor();
         
         //--------------------------------------------
         //Executar grep local
@@ -97,11 +110,11 @@ fflush(stdout);
         //--------------------------------------------
         //Enviar mensagem de resposta da solicitação de grep local - 3 [Resposta de 2]
         m = new Mensagem(3, result.data());
-        //cliente->enviarAoServidor(m);        
+        cliente->enviarAoServidor(m);        
 
         //--------------------------------------------
         //Receber mensagem do servidor com resposta de grep distribuído - 4 [Resposta de 1]
-        //m = cliente->receberDoServidor();
+        m = cliente->receberDoServidor();
 
         //--------------------------------------------
         //Enviar mensagem à aplicação com resposta de grep distribuído - 5 [Resposta de 0]
