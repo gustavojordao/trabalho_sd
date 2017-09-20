@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
     Servidor* servidor = new Servidor(porta);
     
     printf("Iniciando servidor na porta %d...", porta);
+    fflush(stdout);
     
     servidor->iniciar();
     
@@ -49,44 +50,52 @@ int main(int argc, char** argv) {
         fflush(stdout);
                 
         int indice_cliente = servidor->aceitarCliente();
-    
-        printf("\nCliente conectado...Ok");
-                
-        if((filho = fork()) < 0){
-            perror("Ocorreu um erro criando nova instância no servidor - fork");        
-        }
-        else{
-            // Processo filho
-            if(filho == 0){
-                servidor->encerrar();
+        
+        printf("Pressione qualquer tecla para continuar...");
+        getchar();
+        
+        if(indice_cliente >= 0){
+        
+            printf("\nCliente conectado...Ok");
+            fflush(stdout);
 
-                servidor->setConexao(indice_cliente);
-                
-                //--------------------------------------------
-                //Receber mensagem de solicitação de grep distribuído - 1
-                Mensagem* m = servidor->receber(indice_cliente);
-                
-                //--------------------------------------------
-                //Enviar mensagem de solicitação de grep - 2                
-                m->setCodigo(2);
-                servidor->enviarTodos(m);
-                
-                //--------------------------------------------
-                //Receber mensagem de resposta de solicitação de grep - 3 [Resposta de 2]                
-                vector<Mensagem*> mensagens = servidor->receberTodos();
-                
-                //--------------------------------------------
-                //Agrupa conteúdos das mensagens
-                m = servidor->agruparMensagens(mensagens);
-                
-                //--------------------------------------------
-                //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]
-                m->setCodigo(4);
-                servidor->enviar(indice_cliente, m);
+            if((filho = fork()) < 0){
+                perror("Ocorreu um erro criando nova instância no servidor - fork");        
+            }
+            else{
+                // Processo filho
+                if(filho == 0){
+                    servidor->encerrarServidor();
+
+                    //--------------------------------------------
+                    //Receber mensagem de solicitação de grep distribuído - 1
+                    Mensagem* m = servidor->receber(indice_cliente);
+
+                    //--------------------------------------------
+                    //Enviar mensagem de solicitação de grep - 2                
+                    m->setCodigo(2);
+                    servidor->enviarTodos(m);
+
+                    //--------------------------------------------
+                    //Receber mensagem de resposta de solicitação de grep - 3 [Resposta de 2]                
+                    vector<Mensagem*> mensagens = servidor->receberTodos();
+
+                    //--------------------------------------------
+                    //Agrupa conteúdos das mensagens
+                    m = servidor->agruparMensagens(mensagens);
+
+                    //--------------------------------------------
+                    //Enviar mensagem de resposta de solicitação de grep distribuído - 4 [Resposta de 1]
+                    m->setCodigo(4);
+                    servidor->enviar(indice_cliente, m);
+                }
             }
         }
+        else{
+            perror("Não foi possível realizar conexão com o cliente. - aceitarCliente");
+        }
 
-        servidor->encerrar();
+        servidor->encerrarCliente();
     }
     return 0;
 }

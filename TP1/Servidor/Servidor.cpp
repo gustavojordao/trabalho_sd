@@ -50,10 +50,10 @@ void Servidor::iniciar(){
 }
 
 int Servidor::aceitarCliente(){
-    struct sockaddr * addr;
-    socklen_t * addrlen;
+    struct sockaddr_in cli_addr;
+    socklen_t addrlen = sizeof(cli_addr);
     
-    conexaoCliente = accept(conexao,(struct sockaddr *) &addr, addrlen);
+    conexaoCliente = accept(conexao,(struct sockaddr *) &cli_addr, &addrlen);
 
     if(conexaoCliente <= 0){
         perror("\nNão foi possível aceitar conexão. - accept");
@@ -62,8 +62,12 @@ int Servidor::aceitarCliente(){
     return insereCliente(conexaoCliente);
 }
 
-void Servidor::encerrar(){
+void Servidor::encerrarServidor(){
     ::close(conexao);
+}
+
+void Servidor::encerrarCliente(){
+    ::close(conexaoCliente);
 }
 
 int Servidor::enviar(int maquina, Mensagem* mensagem){

@@ -39,7 +39,9 @@ public:
     // Aceitar conexão de cliente
     int aceitarCliente();
     // Encerra servidor
-    void encerrar();
+    void encerrarServidor();
+    // Encerra servidor
+    void encerrarCliente();
     
     // Envia mensagem ao cliente
     int enviar(int maquina, Mensagem* mensagem);

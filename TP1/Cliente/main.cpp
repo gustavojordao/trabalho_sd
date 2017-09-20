@@ -36,31 +36,44 @@ int main(int argc, char** argv) {
     }*/
     
     char ip_servidor[255];
-    strcpy(ip_servidor, "102");//argv[1];
+    strcpy(ip_servidor, "192.168.25.198");//argv[1];
     int porta_servidor = 8000;//atoi(argv[2]);
     int porta_aplicacao = 8001; //atoi(argv[3]);
     Cliente* cliente = new Cliente(ip_servidor, porta_servidor, porta_aplicacao);
     
-    //cliente->conectarAoServidor();
+printf("Conectar ao servidor...");
+fflush(stdout);
+    cliente->conectarAoServidor();
+printf("Ok\n");
+fflush(stdout);
 
+printf("Iniciar serviço background...");
+fflush(stdout);
     cliente->iniciarGrep();
-    
+printf("Ok\n");
+fflush(stdout);
+
     while(true){
- printf("\nAceitar...");              
+printf("\nAceitar...");              
+fflush(stdout);
         int conexaoGrep = cliente->aceitarGrep();
- printf("Ok - Cliente %d\n", conexaoGrep);       
+printf("Ok - Cliente %d\n", conexaoGrep);       
+fflush(stdout);
 
         //--------------------------------------------
         //Receber mensagem de solicitação de grep distribuído - 0
  
- printf("\nReceber...");       
+printf("\nReceber...");       
+fflush(stdout);
         Mensagem* m = cliente->receberDoGrep();
- printf("Ok\n");       
+printf("Ok\n");       
+fflush(stdout);
 
         char msg[255]; 
         m->toChar(msg);///
         printf("Mensagem: %s", msg);
- 
+        fflush(stdout);
+
         //--------------------------------------------
         //Enviar mensagem ao servidor solicitando grep distribuído - 1
         m->setCodigo(1);
