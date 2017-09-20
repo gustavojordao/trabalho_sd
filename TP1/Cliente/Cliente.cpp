@@ -65,7 +65,7 @@ void Cliente::iniciarGrep(){
 
 int Cliente::aceitarGrep(){
     struct sockaddr_in serv_addr;
-    socklen_t addrlen = sizeof(serv_addr);;
+    socklen_t addrlen = sizeof(serv_addr);
         
     acceptGrep = accept(conexaoGrep, (struct sockaddr *) &serv_addr, &addrlen);
     
@@ -88,7 +88,6 @@ int Cliente::enviarAoGrep(Mensagem* mensagem){
     
     if(numBytes <= 0){
         perror("\nNão foi possível enviar mensagem. - send");
-        return NULL;
     }
     
     return numBytes;
@@ -117,7 +116,6 @@ int Cliente::enviarAoServidor(Mensagem* mensagem) {
     
     if(numBytes <= 0){
         perror("\nNão foi possível enviar mensagem. - send");
-        return NULL;
     }
     
     return numBytes;
