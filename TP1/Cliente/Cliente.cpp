@@ -18,7 +18,7 @@ Cliente::Cliente(char* ip_servidor, int portaServidor, int portaGrep) {
     
     this->portaServidor = portaServidor;
     this->portaGrep = portaGrep;
-    strcpy(this->ip_servidor, ip_servidor);
+    sprintf(this->ip_servidor, ip_servidor);
 }
 
 Cliente::Cliente(const Cliente& orig) {

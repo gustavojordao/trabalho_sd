@@ -45,38 +45,45 @@ int main(int argc, char** argv) {
         printf("Exemplo acima busca números.");
     }
     else*/{
-        char argumentos[255];
+        char argumentos[1000];
         
-        sprintf(argumentos, "grep erro");
-        /*
+        sprintf(argumentos, "grep");
+        
         for(int i=1; i<argc; i++){
             sprintf(argumentos, "%s %s", argumentos, argv[i]);
         }
-        */
+        
         
         string str_argumentos = argumentos;
                 
         Cliente* cliente = new Cliente(8001);
-printf("\nConectar...");       
+        printf("\nConectar...");       
+        fflush(stdout);
         cliente->conectar();
-printf("Ok\n");       
-
+        printf("Ok\n");       
+        fflush(stdout);
+        
         //--------------------------------------------
         //Enviar mensagem ao cliente solicitando grep distribuído - 0
-printf("\nEnviar...");       
+        printf("\nEnviar...");       
+        fflush(stdout);
         cliente->enviar(new Mensagem(0, str_argumentos));
-printf("Ok\n");
- 
-printf("\nReceber...");       
+        printf("Ok\n");
+        fflush(stdout);
+        
+        printf("\nReceber...");       
+        fflush(stdout);
         //--------------------------------------------
         //Receber mensagem do cliente de resposta de solicitação ao grep distribuído - 5 [Resposta de 0]
         Mensagem* m = cliente->receber();
         // Exibe resultado de grep distribuído        
-printf("Ok\n");
-
+        printf("Ok\n");
+        fflush(stdout);
+        
         char msg[255]; 
         m->toChar(msg);///
         printf("Mensagem: %s", msg);
+        fflush(stdout);
         
         cliente->encerrar();
  

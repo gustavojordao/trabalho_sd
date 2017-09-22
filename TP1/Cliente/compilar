@@ -1,0 +1,1 @@
+g++ Cliente.cpp Mensagem.cpp main.cpp -o cliente

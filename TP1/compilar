@@ -1,0 +1,3 @@
+g++ Cliente/Cliente.cpp Cliente/Mensagem.cpp Cliente/main.cpp -o Cliente/cliente
+g++ grep/Cliente.cpp grep/Mensagem.cpp grep/main.cpp -o grep/cliente_grep
+g++ Servidor/Servidor.cpp Servidor/Mensagem.cpp Servidor/main.cpp -o Servidor/servidor

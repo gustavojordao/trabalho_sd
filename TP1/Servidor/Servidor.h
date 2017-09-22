@@ -53,8 +53,14 @@ public:
     void enviarTodos(Mensagem* mensagem);
     
     vector<Mensagem*> receberTodos();
+
+    vector<Mensagem*> enviarReceberTodos(Mensagem* mensagem);
     
     Mensagem* agruparMensagens(vector<Mensagem*> mensagens);
+    
+    int getCliente(int i);
+    
+    void setCliente(int i, int cliente);
     
 protected:
     // Insere cliente no array
