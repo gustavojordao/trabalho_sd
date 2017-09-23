@@ -28,6 +28,8 @@ pthread_t thread_reinicia;
 
 Servidor* servidor = NULL;
 
+Mensagem* mensagens[MAX_CLIENTES];
+
 int cliente = -1;
 
 int qtd_clientes = 0;
@@ -58,6 +60,10 @@ int main(int argc, char** argv) {
     printf("Ok\n");
     fflush(stdout);
 
+    for(int i=0; i<MAX_CLIENTES; i++){
+        mensagens[i] = NULL;
+    }
+    
     pthread_create(&(thread_reinicia), NULL, thread_conexao, NULL);
                 
     while(true){
@@ -84,7 +90,7 @@ void* thread_conexao(void* arg){
     int s;
     
     if(finalizado){
-    
+        pthread_cancel(threads[cliente]); /////////////////////////////////////////////
         for(int i=0; i<qtd_clientes; i++){
             pthread_join(threads[i], NULL);
         }
@@ -93,11 +99,11 @@ void* thread_conexao(void* arg){
         fflush(stdout);
         
         for(int i=0; i<qtd_clientes; i++){
-            if(cliente != i){
+            // if(cliente != i){
                 s = pthread_create(&(threads[i]), NULL, thread_cliente, &i);
                 if (s != 0)
                    perror("pthread_create");
-            }
+            // }
             
             finalizado = false;
 
@@ -111,35 +117,73 @@ void* thread_cliente(void* arg){
     
     void* res;
     int s;
-    if(cliente == -1 || cliente == indice){
+//    if(cliente == -1 || cliente == indice)
+    
+    Mensagem* m;
+    
+    while(true){
 
-        Mensagem* m = servidor->receber(indice);
+        m = servidor->receber(indice);
 
         if(m != NULL){
-            for(int i=0; i<qtd_clientes; i++){
+            /*for(int i=0; i<qtd_clientes; i++){
                 if(indice != i){
                     s = pthread_cancel(threads[i]);
                     if (s != 0)
                        perror("pthread_cancel");
                 }
-            }
+            }*/
            
-            cliente = indice;
+            if(cliente == -1){
             
-            printf("\nCliente %d fez requisição", indice);
-            fflush(stdout);
+                cliente = indice;
 
-            printf("\nBroadcast de requisição");
-            fflush(stdout);
-            m->setCodigo(2);
-            vector<Mensagem*> mensagens = servidor->enviarReceberTodos(m);
-            m = servidor->agruparMensagens(mensagens);
+                printf("\nCliente %d fez requisição", indice);
+                fflush(stdout);
 
-            printf("\nResposta ao cliente %d", indice);
-            fflush(stdout);
-            m->setCodigo(4);
-            servidor->enviar(indice, m);
-           
+                printf("\nBroadcast de requisição");
+                fflush(stdout);
+                m->setCodigo(2);
+                //vector<Mensagem*> mensagens = servidor->enviarReceberTodos(m);
+                
+                // Não dá para colocar essa parte na classe porque depende do array
+                // de mensagens
+                vector<Mensagem*>* v_mensagens = new vector<Mensagem*>();
+                char str[50];
+                Mensagem* mensagem;
+                for(int i=0; i<MAX_CLIENTES; i++){
+                    if(servidor->getCliente(i) != -1){
+                        printf("\nEnviando para Cliente %d...", i);
+                        fflush(stdout);
+                        servidor->enviar(i, m);
+                        printf("Ok\n", i);
+                        fflush(stdout);
+                        mensagem = NULL;
+                        while(mensagem == NULL){
+                            mensagem = mensagens[i];
+                        }
+                        //m = receber(i);
+                        mensagens[i] = NULL;
+                        sprintf(str, "----------\nMaquina %d\n----------\n", i);
+                        mensagem->setTexto(str + mensagem->getTexto());
+                        v_mensagens->push_back(mensagem);
+
+                    }
+                }
+                
+                
+                m = servidor->agruparMensagens(*v_mensagens);
+
+                printf("\nResposta ao cliente %d", indice);
+                fflush(stdout);
+                m->setCodigo(4);
+                servidor->enviar(indice, m);
+                
+                cliente = -1;
+            }
+            else{
+                mensagens[indice] = m;
+            }
         }
         
         finalizado = true;
