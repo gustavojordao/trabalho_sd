@@ -1,4 +1,3 @@
-#pragma once
 
 #include "Servidor.h"
 #include "Cliente.h"

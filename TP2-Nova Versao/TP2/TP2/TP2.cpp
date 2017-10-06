@@ -1,7 +1,6 @@
 // TP2.cpp : Define o ponto de entrada para a aplicação de console.
 //
 
-#include "stdafx.h"
 
 #include "Node.h"
 
