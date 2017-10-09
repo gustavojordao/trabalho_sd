@@ -20,10 +20,10 @@ Node::Node() {
 Node::~Node() {
 }
 
-Node::Node(int indice, string ip_antecessor, int porta) {
+Node::Node(int indice, string ip_antecessor, int porta_antecessor, int porta_sucessor) {
     this->indice = indice;
-    this->antecessor = new Cliente(ip_antecessor, porta);
-    this->sucessor = new Servidor(porta);
+    this->antecessor = new Cliente(ip_antecessor, porta_antecessor);
+    this->sucessor = new Servidor(porta_sucessor);
     this->pares = *new vector<Pair*>();
     this->num_nodes = 0;
 }

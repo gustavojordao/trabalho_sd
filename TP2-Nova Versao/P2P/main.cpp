@@ -34,21 +34,23 @@ bool recebeNovoAntecessor;
 int main(int argc, char**argv)
 {
 
-	string ip;
-	int porta;
+	string ip_antecessor;
+	int porta_antecessor;
+	int porta_sucessor;
 
 	if (argc > 2) {
-		ip = argv[1];
-		porta = atoi(argv[2]);
+		ip_antecessor = argv[1];
+		porta_antecessor = atoi(argv[2]);
+		porta_sucessor = atoi(argv[3]);
 	}
 	else {
-		ip = "";
-		porta = atoi(argv[1]);
+		ip_antecessor = "";
+		porta_sucessor = atoi(argv[1]);
 	}
 
-	node = new Node();
+	node = new Node(0, ip_antecessor, porta_antecessor, porta_sucessor);
 
-	if (ip.compare("") != 0) {
+	if (ip_antecessor.compare("") != 0) {
 		// Não é primeiro
 		node->getAntecessor()->conectar();
 		node->getAntecessor()->enviar(Mensagem::criarMensagemSolicitacaoIndice());

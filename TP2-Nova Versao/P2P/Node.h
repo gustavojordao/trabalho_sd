@@ -33,7 +33,7 @@ private:
 	
 public:
 	Node();
-	Node(int indice, string ip_antecessor, int porta);
+	Node(int indice, string ip_antecessor, int porta_antecessor, int porta_sucessor);
 	~Node();
 
 	void setIndice(int indice);

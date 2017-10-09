@@ -76,6 +76,15 @@ Mensagem* Mensagem::criarMensagemStore(int solicitante, Pair* pair) {
     return new Mensagem(Mensagem::STORE, str);
 }
 
+Mensagem* Mensagem::criarMensagemAtualizacaoNode() {
+    // TODO: Mensagem de atualização de nós
+    // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
+    // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
+    
+    return NULL;
+}
+
+
 int Mensagem::getCodigo() {
     return codigo;
 }

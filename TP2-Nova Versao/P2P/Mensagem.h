@@ -42,7 +42,8 @@ public:
 	static Mensagem* criarMensagemSolicitacaoIndice();
 	static Mensagem* criarMensagemRespostaSolicitacaoIndice(int indice);
 	//static Mensagem* criarMensagemMorra();
-
+        static Mensagem* criarMensagemAtualizacaoNode();
+        
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;
 	static const int STORE = 2;
@@ -50,7 +51,8 @@ public:
 	//static const int RESPOSTA_NOVO_NODE = 4;
 	static const int SOLICITACAO_INDICE = 5;
 	static const int RESPOSTA_SOLICITACAO_INDICE = 6;
-
+        static const int ATUALIZACAO_NODE = 7;
+        
 	int getCodigo();
 	string getTexto();
 
