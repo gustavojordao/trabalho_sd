@@ -86,7 +86,9 @@ void* thread_recebe_ant(void* arg) {
 		int indice;
 		string ip;
 		int porta;
-
+		vector<Pair*> pares;
+		int i;
+		
 		switch (codigo) {
 
 		case Mensagem::FIND:
@@ -171,6 +173,24 @@ void* thread_recebe_ant(void* arg) {
 			indice = atoi(partes.at(0).c_str());
 			node->setIndice(indice);
 			break;
+		case Mensagem::ATUALIZACAO_NODE_ANT:
+			partes = m->getPartes();
+			indice = atoi(partes.at(0));
+			num_nodes = atoi(partes.at(1));
+			pares = *new vector<Pair*>();
+			for(i=2; i<(partes.size()-2)/2; i++){
+				pares.push_back(new Pair(partes.at(i), partes.at(i+1)));
+			}
+			
+			if(indice != node->getIndice()){
+				node->setNumNodes(num_nodes);
+				for(i=0; i<pares.size(); i++){
+					node->storePar(pares.at(i));
+				}
+				node->getSucessor()->enviar(m);
+			}
+				
+			break;
 		default:
 			printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
 			break;
@@ -194,6 +214,7 @@ void* thread_recebe_suc(void* arg) {
 		int indice;
 		string ip;
 		int porta;
+		int num_nodes;
 
 		switch (codigo) {
 			
@@ -272,6 +293,45 @@ void* thread_recebe_suc(void* arg) {
 			//	break;
 			case Mensagem::SOLICITACAO_INDICE:
 				node->getSucessor()->enviar(Mensagem::criarMensagemRespostaSolicitacaoIndice(node->getIndice() + 1));
+				sleep(1); //TODO: Verificar unidade de tempo
+
+				// TODO: Verificar necessidade de exigir que nó que entra na rede solicita atualização para então iniciar o ciclo.
+				// Não é complicado de fazer.
+				vector<Pair*> repasseParesAnt = *new vector<Pair*>();
+				vector<Pair*> repasseParesSuc = *new vector<Pair*>();
+				for(int i=0; i<node->getPares().size(); i++){
+					int key_0 = node->getPares()->getKey().at(i)[0];
+					if(node->getEnderecoInicial() < key_0){
+						repasseParesAnt.push_back(node->getPares().at(i));
+					}
+					else if(node->getEnderecoFinal() > key_0 ){
+						repasseParesSuc.push_back(node->getPares().at(i));
+					}			
+				}
+				
+				//TODO: Enviar em ambos os sentidos
+				
+				node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), repasseParesAnt));
+				node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), repasseParesSuc));
+
+				break;
+			case Mensagem::ATUALIZACAO_NODE_SUC:
+				partes = m->getPartes();
+				indice = atoi(partes.at(0));
+				num_nodes = atoi(partes.at(1));
+				pares = *new vector<Pair*>();
+				for(i=2; i<(partes.size()-2)/2; i++){
+					pares.push_back(new Pair(partes.at(i), partes.at(i+1)));
+				}
+				
+				if(indice != node->getIndice()){
+					node->setNumNodes(num_nodes);
+					for(i=0; i<pares.size(); i++){
+						node->storePar(pares.at(i));
+					}
+					node->getAntecessor()->enviar(m);
+				}
+					
 				break;
 /*			case Mensagem::RESPOSTA_SOLICITACAO_INDICE:
 				partes = m->getPartes();
@@ -294,6 +354,7 @@ void* thread_aceita_con(void* arg) {
 		// TODO: Aqui trata conexão de nó com último do anel. Tratar segunda parte, conexão de nó com primeiro do anel
 		// Variável recebeNovoAntecessor é responsável por tratar a segunda parte.
 		node->getSucessor()->aceitar();
+		
 		string ip = node->getSucessor()->getIpCliente();
 		int porta = node->getSucessor()->getPorta();
 		
@@ -304,6 +365,9 @@ void* thread_aceita_con(void* arg) {
 			recebeNovoAntecessor = false;
 		}
 		node->getSucessor()->setConexao(node->getSucessor()->getConexaoCliente());
+		
+		node->incNumNodes();
+		
 	}
 
 }

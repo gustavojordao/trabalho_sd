@@ -25,7 +25,7 @@ Node::Node(int indice, string ip_antecessor, int porta_antecessor, int porta_suc
     this->antecessor = new Cliente(ip_antecessor, porta_antecessor);
     this->sucessor = new Servidor(porta_sucessor);
     this->pares = *new vector<Pair*>();
-    this->num_nodes = 0;
+    this->num_nodes = 1;
 }
 
 int Node::findPar(string value) {
@@ -36,12 +36,14 @@ int Node::findPar(string value) {
     }
     
     // TODO: Pensar daqui para baixo
-    int num_letras = 'z'-'a'+1;
-    float num_nodes_f = num_nodes;
-    float letras_por_node = num_letras/num_nodes_f;
-    
-    int ultima_letra = (int) ceil(indice*letras_por_node);
-    return (int) ceil(indice*letras_por_node);
+    if(value[0] < getEnderecoInicial()){
+		return -1;
+	}
+	else if(value[0] > getEnderecoFinal()){
+		return -2;
+	}
+	
+	return -3;
 }
 
 Cliente* Node::getAntecessor() {
@@ -50,6 +52,18 @@ Cliente* Node::getAntecessor() {
 
 int Node::getIndice() {
     return indice;
+}
+
+void Node::incNumNodes(){
+	num_nodes++;
+}
+
+void Node::setNumNodes(int numNodes){
+	this->num_nodes = numNodes;
+}
+
+int Node::getNumNodes(){
+	return num_nodes;
 }
 
 vector<Pair*> Node::getPares() {
@@ -65,5 +79,20 @@ void Node::setIndice(int indice) {
 }
 
 void Node::storePar(Pair* pair) {
-    // TODO: Planejar
+    for(int i=0; i<pares.size(); i++){
+		if(pares.at(i)->getKey().compare(pair->getKey())){
+			pares.at(i) = pair;
+			return;
+		}
+	}
+	
+	pares.push_back(pair);
+}
+
+int Node::getEnderecoInicial(){
+	return 65 + (indice*26/num_nodes) + (indice < 26%num_nodes ? 1 : 0);				
+}
+
+int Node::getEnderecoFinal(){
+	return 65 + (indice+1)*26/num_nodes) + (indice+1 < 26%num_nodes ? 1 : 0);
 }

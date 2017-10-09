@@ -39,6 +39,10 @@ public:
 	void setIndice(int indice);
 	int getIndice();
 	
+	void incNumNodes();
+	void setNumNodes(int numNodes);
+	int getNumNodes();
+	
 	// Retorna índice do par no vetor
 	// Retorna -1 caso deve estar no antecessor
 	// Retorna -2 caso deve estar no sucessor
@@ -49,6 +53,9 @@ public:
 
 	Cliente* getAntecessor();
 	Servidor* getSucessor();
+	
+	int getEnderecoInicial();
+	int getEnderecoFinal();
 	
 };
 

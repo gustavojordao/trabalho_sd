@@ -76,14 +76,29 @@ Mensagem* Mensagem::criarMensagemStore(int solicitante, Pair* pair) {
     return new Mensagem(Mensagem::STORE, str);
 }
 
-Mensagem* Mensagem::criarMensagemAtualizacaoNode() {
+Mensagem* Mensagem::criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares) {
     // TODO: Mensagem de atualização de nós
     // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
     // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
-    
-    return NULL;
+    string str = inicial + "|" + num_nodes + "|";
+	for(int i=0; i<pares.size(); i++){
+		str += pares.at(i).getKey() + "|" + pares.at(i).getValue();
+	}
+	
+    return new Mensagem(Mensagem::ATUALIZACAO_NODE_ANT, str);
 }
 
+Mensagem* Mensagem::criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, vector<Pair*> pares) {
+    // TODO: Mensagem de atualização de nós
+    // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
+    // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
+    string str = inicial + "|" + num_nodes + "|";
+	for(int i=0; i<pares.size(); i++){
+		str += pares.at(i).getKey() + "|" + pares.at(i).getValue();
+	}
+	
+    return new Mensagem(Mensagem::ATUALIZACAO_NODE_SUC, str);
+}
 
 int Mensagem::getCodigo() {
     return codigo;
