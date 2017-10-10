@@ -80,9 +80,13 @@ Mensagem* Mensagem::criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, 
     // TODO: Mensagem de atualização de nós
     // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
     // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
-    string str = inicial + "|" + num_nodes + "|";
+    string str = "";
+    str += inicial;
+    str += "|";
+    str += num_nodes;
+    str += "|";
 	for(int i=0; i<pares.size(); i++){
-		str += pares.at(i).getKey() + "|" + pares.at(i).getValue();
+		str += pares.at(i)->getKey() + "|" + pares.at(i)->getValue();
 	}
 	
     return new Mensagem(Mensagem::ATUALIZACAO_NODE_ANT, str);
@@ -92,9 +96,13 @@ Mensagem* Mensagem::criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, 
     // TODO: Mensagem de atualização de nós
     // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
     // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
-    string str = inicial + "|" + num_nodes + "|";
+    string str = "";
+    str += inicial;
+    str += "|";
+    str += num_nodes; 
+    str += "|";
 	for(int i=0; i<pares.size(); i++){
-		str += pares.at(i).getKey() + "|" + pares.at(i).getValue();
+		str += pares.at(i)->getKey() + "|" + pares.at(i)->getValue();
 	}
 	
     return new Mensagem(Mensagem::ATUALIZACAO_NODE_SUC, str);

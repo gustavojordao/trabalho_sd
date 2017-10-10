@@ -88,7 +88,8 @@ void* thread_recebe_ant(void* arg) {
 		int porta;
 		vector<Pair*> pares;
 		int i;
-		
+		int num_nodes;
+                
 		switch (codigo) {
 
 		case Mensagem::FIND:
@@ -175,8 +176,8 @@ void* thread_recebe_ant(void* arg) {
 			break;
 		case Mensagem::ATUALIZACAO_NODE_ANT:
 			partes = m->getPartes();
-			indice = atoi(partes.at(0));
-			num_nodes = atoi(partes.at(1));
+			indice = atoi(partes.at(0).c_str());
+			num_nodes = atoi(partes.at(1).c_str());
 			pares = *new vector<Pair*>();
 			for(i=2; i<(partes.size()-2)/2; i++){
 				pares.push_back(new Pair(partes.at(i), partes.at(i+1)));
@@ -215,7 +216,11 @@ void* thread_recebe_suc(void* arg) {
 		string ip;
 		int porta;
 		int num_nodes;
-
+                vector<Pair*> pares;
+                int i;
+                vector<Pair*> repasseParesAnt;
+                vector<Pair*> repasseParesSuc;
+                
 		switch (codigo) {
 			
 			case Mensagem::FIND:
@@ -297,10 +302,10 @@ void* thread_recebe_suc(void* arg) {
 
 				// TODO: Verificar necessidade de exigir que nó que entra na rede solicita atualização para então iniciar o ciclo.
 				// Não é complicado de fazer.
-				vector<Pair*> repasseParesAnt = *new vector<Pair*>();
-				vector<Pair*> repasseParesSuc = *new vector<Pair*>();
-				for(int i=0; i<node->getPares().size(); i++){
-					int key_0 = node->getPares()->getKey().at(i)[0];
+				repasseParesAnt = *new vector<Pair*>();
+				repasseParesSuc = *new vector<Pair*>();
+				for(i=0; i<node->getPares().size(); i++){
+					int key_0 = node->getPares().at(i)->getKey()[0];
 					if(node->getEnderecoInicial() < key_0){
 						repasseParesAnt.push_back(node->getPares().at(i));
 					}
@@ -317,8 +322,8 @@ void* thread_recebe_suc(void* arg) {
 				break;
 			case Mensagem::ATUALIZACAO_NODE_SUC:
 				partes = m->getPartes();
-				indice = atoi(partes.at(0));
-				num_nodes = atoi(partes.at(1));
+				indice = atoi(partes.at(0).c_str());
+				num_nodes = atoi(partes.at(1).c_str());
 				pares = *new vector<Pair*>();
 				for(i=2; i<(partes.size()-2)/2; i++){
 					pares.push_back(new Pair(partes.at(i), partes.at(i+1)));

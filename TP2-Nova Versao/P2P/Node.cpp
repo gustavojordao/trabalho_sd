@@ -94,5 +94,5 @@ int Node::getEnderecoInicial(){
 }
 
 int Node::getEnderecoFinal(){
-	return 65 + (indice+1)*26/num_nodes) + (indice+1 < 26%num_nodes ? 1 : 0);
+	return 65 + ((indice+1)*26/num_nodes) + (indice+1 < 26%num_nodes ? 1 : 0);
 }
