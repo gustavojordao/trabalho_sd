@@ -34,40 +34,84 @@ bool recebeNovoAntecessor;
 int main(int argc, char**argv)
 {
 
-	string ip_antecessor;
-	int porta_antecessor;
-	int porta_sucessor;
+    char linha[500];
 
-	if (argc > 2) {
-		ip_antecessor = argv[1];
-		porta_antecessor = atoi(argv[2]);
-		porta_sucessor = atoi(argv[3]);
-	}
-	else {
-		ip_antecessor = "";
-		porta_sucessor = atoi(argv[1]);
-	}
+    string ip_antecessor;
+    int porta_antecessor;
+    int porta_sucessor;
 
-	node = new Node(0, ip_antecessor, porta_antecessor, porta_sucessor);
+    if (argc > 2) {
+            ip_antecessor = "127.0.0.1";//argv[1];
+            porta_antecessor = 8000;//atoi(argv[2]);
+            porta_sucessor = 8001;//atoi(argv[3]);
+    }
+    else {
+            ip_antecessor = "";
+            porta_sucessor = 8000;//atoi(argv[1]);
+    }
 
-	if (ip_antecessor.compare("") != 0) {
-		// Não é primeiro
-		node->getAntecessor()->conectar();
-		node->getAntecessor()->enviar(Mensagem::criarMensagemSolicitacaoIndice());
-		Mensagem* m = node->getAntecessor()->receber();
+    node = new Node(0, ip_antecessor, porta_antecessor, porta_sucessor);
 
-		int indice = atoi(m->getPartes().at(0).c_str());
+    if (ip_antecessor.compare("") != 0) {
+            // Não é primeiro
+            node->getAntecessor()->conectar();
+            node->getAntecessor()->enviar(Mensagem::criarMensagemSolicitacaoIndice());
+            Mensagem* m = node->getAntecessor()->receber();
 
-		node->setIndice(indice);
-	}
+            int indice = atoi(m->getPartes().at(0).c_str());
 
-	recebeNovoAntecessor = true;
-	node->getSucessor()->iniciar();
-	
-	pthread_create(&(thread_ac), NULL, thread_aceita_con, NULL);
-        pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-        pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
+            node->setIndice(indice);
+    }
 
+    recebeNovoAntecessor = true;
+    node->getSucessor()->iniciar();
+
+    pthread_create(&(thread_ac), NULL, thread_aceita_con, NULL);
+    pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
+    pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
+
+    while(true){
+        // Aguarda opções find/store
+        printf("Entre com o comando:\n");
+        printf("find <KEY>\n");
+        printf("store <KEY> <VALUE>\n>");
+        //scanf("%[^\r]");
+        fgets(linha, 499, stdin);
+        printf("%s\n", linha);
+
+        stringstream ss(linha);
+        string str_linha = linha;
+        string item;
+        vector<string> tokens;
+        while (getline(ss, item, ' ')) {
+            tokens.push_back(item);
+        }
+
+        string key;
+        string value;
+
+        if(tokens.size() > 3){
+            if(tokens.at(0).compare("store") == 0){
+                key = tokens.at(1);
+                int qtd_letras = tokens.at(0).length() + 1 + tokens.at(1).length();
+                value = str_linha.substr(qtd_letras);
+            }
+            else{
+                perror("Erro de sintaxe. Tente novamente.\n");
+            }
+        }
+        else if(tokens.size() == 2){
+            if(tokens.at(0).compare("find") == 0){
+                key = tokens.at(1);
+            }
+            else{
+                perror("Erro de sintaxe. Tente novamente.\n");
+            }
+        }
+        else{
+            perror("Erro de sintaxe. Tente novamente.\n");            
+        }
+    }
     return 0;
 }
 
