@@ -44,6 +44,8 @@ public:
 	Mensagem* receber();
 
 	void setEndereco(string ip, int porta);
+        
+        string getIp();
 };
 
 
