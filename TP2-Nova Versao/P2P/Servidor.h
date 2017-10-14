@@ -23,11 +23,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string>
+#include <iostream>
+using namespace std;
 
 class Servidor
 {
 private:
 	string ip_cliente;
+	string ip_novo_cliente;
 	int porta;
 
 	int conexao;
@@ -44,13 +48,16 @@ public:
 
 	int enviar(Mensagem* m);
 	Mensagem* receber();
+        Mensagem* receberDoNovoCliente();
 
 	string getIpCliente();
+	string getIpNovoCliente();
 
 	int getPorta();
 	void setPorta(int porta);
         
         int getConexaoCliente();
+        int getNovaConexaoCliente();
 };
 
 

@@ -30,6 +30,7 @@ pthread_t thread_ac;
 
 Node* node;
 bool recebeNovoAntecessor;
+bool iniciaThreadServidor = false;
 
 int main(int argc, char**argv) {
 
@@ -39,34 +40,54 @@ int main(int argc, char**argv) {
     int porta_antecessor;
     int porta_sucessor;
 
+    node = NULL;
+    
     if (argc > 2) {
-        ip_antecessor = "127.0.0.1"; //argv[1];
-        porta_antecessor = 8000; //atoi(argv[2]);
-        porta_sucessor = 8001; //atoi(argv[3]);
+        ip_antecessor = argv[1];
+        porta_antecessor = atoi(argv[2]);
+        porta_sucessor = atoi(argv[3]);
+        
+        node = new Node(ip_antecessor, porta_antecessor, porta_sucessor);
+
     } else {
         ip_antecessor = "";
         porta_antecessor = 8001;
-        porta_sucessor = 8000; //atoi(argv[1]);
+        porta_sucessor = atoi(argv[1]);
+
+        node = new Node(porta_sucessor);
+    }
+    
+    if (node->getAntecessor() != NULL) {
+        // Não é primeiro
+        node->getSucessor()->iniciar();
+        node->getAntecessor()->conectar();
         
+        string this_ip = "127.0.0.1";
+        
+        node->getAntecessor()->enviar(Mensagem::criarMensagemNovoNode(this_ip, porta_sucessor));
+        pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
+    }
+    else{
+        node->getSucessor()->iniciar();
     }
 
-    node = new Node(0, ip_antecessor, porta_antecessor, porta_sucessor);
-
-    if (ip_antecessor.compare("") != 0) {
-        // Não é primeiro
-        node->getAntecessor()->conectar();
+    iniciaThreadServidor = true;
+    pthread_create(&(thread_ac), NULL, thread_aceita_con, NULL);
+    
+    // TODO: Realocar
+    /*{
         node->getAntecessor()->enviar(Mensagem::criarMensagemSolicitacaoIndice());
         Mensagem* m = node->getAntecessor()->receber();
 
         int indice = atoi(m->getPartes().at(0).c_str());
 
         node->setIndice(indice);
-    }
+    }*/
 
     recebeNovoAntecessor = true;
-    node->getSucessor()->iniciar();
+    
 
-    if (ip_antecessor.compare("") == 0) {
+/*    if (node->getAntecessor() == 0) {
         node->getSucessor()->aceitar();
 
         string ip = node->getSucessor()->getIpCliente();
@@ -81,14 +102,11 @@ int main(int argc, char**argv) {
 
         node->incNumNodes();
     }
-
+*/
     
-    pthread_create(&(thread_ac), NULL, thread_aceita_con, NULL);
-    pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-    pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
 
     while (true) {
-        // Aguarda opções find/store
+    /*    // Aguarda opções find/store
         printf("Entre com o comando:\n");
         printf("find <KEY>\n");
         printf("store <KEY> <VALUE>\n>");
@@ -123,7 +141,11 @@ int main(int argc, char**argv) {
             }
         } else {
             perror("Erro de sintaxe. Tente novamente.\n");
-        }
+        }*/
+        
+        getchar();
+        printf("Antecessor: %d", node->getAntecessor()->getPorta());
+        printf("Sucessor: %d", node->getSucessor()->getPorta());
     }
     return 0;
 }
@@ -131,11 +153,14 @@ int main(int argc, char**argv) {
 void* thread_recebe_ant(void* arg) {
 
     while (true) {
-        if (node->getAntecessor()->getIp().compare("")) {
+        if (node->getAntecessor() == NULL) {
             continue;
         } else {
             Mensagem* m = node->getAntecessor()->receber();
 
+            if(m == NULL)
+                continue;
+            
             int codigo = m->getCodigo();
 
             vector<string> partes;
@@ -221,7 +246,30 @@ void* thread_recebe_ant(void* arg) {
                                     case Mensagem::SOLICITACAO_INDICE:
                                             node->getSucessor()->enviar(Mensagem::criarMensagemRespostaSolicitacaoIndice(node->getIndice() + 1));
                                             break;
-                     */ case Mensagem::RESPOSTA_SOLICITACAO_INDICE:
+                     */
+                case Mensagem::NOVO_NODE:
+                    recebeNovoAntecessor = true;
+
+                    partes = m->getPartes();
+                    printf("Ai amor me duele tanto. Me duele tanto.%s:%s %s", partes.at(0).c_str(), partes.at(1).c_str(), m->getTexto().c_str());
+                    fflush(stdout);
+                    
+                    ip = partes.at(0);
+                    porta = atoi(partes.at(1).c_str()); // TODO: Rever formato de mensagem adicionando porta
+                    printf("Vai conectar%s:%d", ip.c_str(), porta);
+                    fflush(stdout);
+                    node->getAntecessor()->desconectar();
+                    printf("It:");
+                    fflush(stdout);
+                    node->setAntecessor(ip, porta);
+                    printf("Nii:");
+                    fflush(stdout);
+                    node->getAntecessor()->conectar();
+                    printf("San:");
+                    fflush(stdout);
+                    
+                    break;
+                case Mensagem::RESPOSTA_SOLICITACAO_INDICE:
                     partes = m->getPartes();
 
                     indice = atoi(partes.at(0).c_str());
@@ -245,6 +293,10 @@ void* thread_recebe_ant(void* arg) {
                     }
 
                     break;
+                case Mensagem::SOLICITACAO_PORTA:
+                    porta = node->getSucessor()->getPorta();
+                    node->getAntecessor()->enviar(Mensagem::criarRespostaMensagemSolicitacaoPorta(porta));
+                    break;
                 default:
                     printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
                     break;
@@ -259,6 +311,9 @@ void* thread_recebe_suc(void* arg) {
     while (true) {
         Mensagem* m = node->getSucessor()->receber();
 
+        if(m == NULL)
+            continue;
+            
         int codigo = m->getCodigo();
 
         vector<string> partes;
@@ -328,18 +383,16 @@ void* thread_recebe_suc(void* arg) {
                 }
 
                 break;
-            case Mensagem::NOVO_NODE:
-                recebeNovoAntecessor = true;
-
+           /* case Mensagem::NOVO_NODE:
                 partes = m->getPartes();
-                ip = partes.at(0);
+                ip = node->getSucessor()->getIpNovoCliente();
                 porta = atoi(partes.at(1).c_str()); // TODO: Rever formato de mensagem adicionando porta
 
                 node->getAntecessor()->desconectar();
-                node->getAntecessor()->setEndereco(ip, porta);
+                node->setAntecessor(ip, porta);
                 node->getAntecessor()->conectar();
 
-                break;
+                break;*/
                 //case Mensagem::RESPOSTA_NOVO_NODE:
                 //	
                 //	break;
@@ -390,7 +443,17 @@ void* thread_recebe_suc(void* arg) {
                                                 indice = atoi(partes.at(0));
                                                 node->setIndice(indice);
                                                 break;
-                 */ default:
+                 */ 
+            case Mensagem::RESPOSTA_SOLICITACAO_PORTA:
+                ip = node->getSucessor()->getIpCliente();
+                porta = atoi(m->getTexto().c_str());
+                node->setAntecessor(ip, porta);
+                node->getAntecessor()->conectar();
+                
+                pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
+                
+                break;
+            default:
                 printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
                 break;
         }
@@ -406,17 +469,39 @@ void* thread_aceita_con(void* arg) {
         // Variável recebeNovoAntecessor é responsável por tratar a segunda parte.
         node->getSucessor()->aceitar();
 
-        string ip = node->getSucessor()->getIpCliente();
-        int porta = node->getSucessor()->getPorta();
-
-        if (!recebeNovoAntecessor) {
-            node->getSucessor()->enviar(Mensagem::criarMensagemNovoNode(ip, porta));
-        } else {
-            recebeNovoAntecessor = false;
+        if(iniciaThreadServidor){
+            pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
+            iniciaThreadServidor = false;
         }
-        node->getSucessor()->setConexao(node->getSucessor()->getConexaoCliente());
+        if(node->getAntecessor() == NULL){
+            printf("--Antecessor NULL--%d %d", node->getSucessor()->getConexaoCliente(), node->getSucessor()->getNovaConexaoCliente());
+            node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+            node->incNumNodes();
 
-        node->incNumNodes();
+            node->getSucessor()->enviar(Mensagem::criarMensagemSolicitacaoPorta());
+        }
+        else{        
+            printf("--Antecessor NOT NULL--");
+            if(node->getSucessor()->getConexaoCliente() == node->getSucessor()->getNovaConexaoCliente()){
+            printf("--Igual--");
+                node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+            }
+            else{
+                printf("--Diferente--");
+                
+                Mensagem* m = node->getSucessor()->receberDoNovoCliente();
+                
+                string ip = node->getSucessor()->getIpNovoCliente();
+                int porta = atoi(m->getPartes().at(1).c_str());
+
+                node->getSucessor()->enviar(Mensagem::criarMensagemNovoNode(ip, porta));
+
+                node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+
+                node->incNumNodes();
+            }
+        }
+        printf("--THIS IS THE END--");
 
     }
 

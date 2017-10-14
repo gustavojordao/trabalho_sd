@@ -45,6 +45,9 @@ public:
 	static Mensagem* criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares);
         static Mensagem* criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, vector<Pair*> pares);
         
+        static Mensagem* criarMensagemSolicitacaoPorta();
+        static Mensagem* criarRespostaMensagemSolicitacaoPorta(int porta);
+                
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;
 	static const int STORE = 2;
@@ -54,7 +57,9 @@ public:
 	static const int RESPOSTA_SOLICITACAO_INDICE = 6;
 	static const int ATUALIZACAO_NODE_ANT = 7;
 	static const int ATUALIZACAO_NODE_SUC = 8;
-        
+        static const int SOLICITACAO_PORTA = 9;
+        static const int RESPOSTA_SOLICITACAO_PORTA = 10;
+                
 	int getCodigo();
 	string getTexto();
 

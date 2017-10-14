@@ -31,9 +31,14 @@ private:
 	Cliente* antecessor;
 	Servidor* sucessor;
 	
+        string ip_antecessor;
+        int porta_antecessor;
+        int porta_sucessor;
+        
 public:
 	Node();
-	Node(int indice, string ip_antecessor, int porta_antecessor, int porta_sucessor);
+	Node(int porta_sucessor);
+	Node(string ip_antecessor, int porta_antecessor, int porta_sucessor);
 	~Node();
 
 	void setIndice(int indice);
@@ -51,6 +56,8 @@ public:
 	void storePar(Pair* pair);
 	vector<Pair*> getPares();
 
+        void setAntecessor(string ip, int porta);
+        
 	Cliente* getAntecessor();
 	Servidor* getSucessor();
 	

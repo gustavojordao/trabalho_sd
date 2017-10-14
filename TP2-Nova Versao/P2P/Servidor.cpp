@@ -11,6 +11,7 @@
  * Created on October 5, 2017, 9:30 PM
  */
 
+
 #include "Servidor.h"
 
 Servidor::~Servidor() {
@@ -23,16 +24,26 @@ void Servidor::aceitar() {
     struct sockaddr_in cliente_addr;
     socklen_t addrlen = sizeof (cliente_addr);
 
-    conexaoCliente = accept(conexao, (struct sockaddr *) &cliente_addr, &addrlen);
+    conexaoCliente_temp = accept(conexao, (struct sockaddr *) &cliente_addr, &addrlen);
 
-    if (conexaoCliente <= 0) {
+    struct sockaddr_in cliente_addr_aux;
+    socklen_t addrlen_aux = sizeof (cliente_addr_aux);
+    getsockname(conexaoCliente_temp, (struct sockaddr *) &cliente_addr_aux, &addrlen_aux);
+    
+    ip_novo_cliente = inet_ntoa(cliente_addr_aux.sin_addr);
+    porta = ntohs(cliente_addr_aux.sin_port);
+    printf("Low rider is a little higher: %d %d", cliente_addr_aux.sin_port, ntohs(cliente_addr_aux.sin_port));
+    
+    if(conexaoCliente <= 0){
+        conexaoCliente = conexaoCliente_temp;
+        ip_cliente = ip_novo_cliente;
+    }
+    
+    if (conexaoCliente_temp <= 0) {
         perror("\nNão foi possível aceitar conexão. - accept");
     }
 
-    ip_cliente = inet_ntoa(cliente_addr.sin_addr);
-    porta = (int) ntohs(cliente_addr.sin_port);
-
-    printf("Ok\n");
+    printf("Aceitou(%s:%d)\n", ip_novo_cliente.c_str(), porta);
     fflush(stdout);
 
 }
@@ -41,14 +52,19 @@ int Servidor::enviar(Mensagem* m) {
     printf("\nEnviando mensagem do servidor...");
     fflush(stdout);
 
+    stringstream ss;
     int numBytes = 0;
-    string str = m->getCodigo() + "|" + m->getTexto();
-    numBytes = ::send(conexao, str.c_str(), str.size(), 0);
+    
+    ss << m->getCodigo() << ss.str() << "|" << m->getTexto();
+    
+    string str = ss.str();
+    
+    numBytes = ::send(conexaoCliente, str.c_str(), str.size(), 0);
 
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
     } else {
-        printf("Ok\n");
+        printf("Enviou(%s)\n", str.c_str());
         fflush(stdout);
     }
 
@@ -63,10 +79,10 @@ Mensagem* Servidor::receber() {
 
     int numBytes = 0;
     char msg[1000];
-    numBytes = ::recv(conexao, msg, 1000, 0);
+    numBytes = ::recv(conexaoCliente, msg, 1000, 0);
 
     if (numBytes > 0) {
-        printf("Ok\n");
+        printf("Recebeu(%s)\n", msg);
         fflush(stdout);
         return new Mensagem(msg);
     } else {
@@ -75,6 +91,27 @@ Mensagem* Servidor::receber() {
     }
 }
 
+Mensagem* Servidor::receberDoNovoCliente() {
+    printf("\nRecebendo mensagem no servidor...");
+    fflush(stdout);
+
+    Mensagem* m;
+
+    int numBytes = 0;
+    char msg[1000];
+    numBytes = ::recv(conexaoCliente_temp, msg, 1000, 0);
+
+    if (numBytes > 0) {
+        printf("RecebeuNovo(%s)\n", msg);
+        fflush(stdout);
+        return new Mensagem(msg);
+    } else {
+        perror("\nNão foi possível receber mensagem. - recv");
+        return NULL;
+    }
+}
+
+
 int Servidor::getConexaoCliente() {
     return conexaoCliente;
 }
@@ -82,6 +119,11 @@ int Servidor::getConexaoCliente() {
 string Servidor::getIpCliente() {
     return ip_cliente;
 }
+
+string Servidor::getIpNovoCliente() {
+    return ip_novo_cliente;
+}
+
 
 int Servidor::getPorta() {
     return porta;
@@ -118,5 +160,10 @@ void Servidor::setPorta(int porta) {
 
 Servidor::Servidor(int porta) {
     this->porta = porta;
+    this->conexaoCliente = -1;
+    this->conexaoCliente_temp = -1;
 }
 
+int Servidor::getNovaConexaoCliente() {
+    return this->conexaoCliente_temp;
+}

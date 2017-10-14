@@ -46,6 +46,7 @@ public:
 	void setEndereco(string ip, int porta);
         
         string getIp();
+        int getPorta();
 };
 
 

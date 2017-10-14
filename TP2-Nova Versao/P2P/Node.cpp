@@ -20,8 +20,22 @@ Node::Node() {
 Node::~Node() {
 }
 
-Node::Node(int indice, string ip_antecessor, int porta_antecessor, int porta_sucessor) {
-    this->indice = indice;
+Node::Node(int porta_sucessor) {
+    this->porta_sucessor = porta_sucessor;
+    
+    this->indice = 0;
+    this->antecessor = NULL;
+    this->sucessor = new Servidor(porta_sucessor);
+    this->pares = *new vector<Pair*>();
+    this->num_nodes = 1;
+}
+
+Node::Node(string ip_antecessor, int porta_antecessor, int porta_sucessor) {
+    this->ip_antecessor = ip_antecessor;
+    this->porta_antecessor = porta_antecessor;
+    this->porta_sucessor = porta_sucessor;
+    
+    this->indice = 0;
     this->antecessor = new Cliente(ip_antecessor, porta_antecessor);
     this->sucessor = new Servidor(porta_sucessor);
     this->pares = *new vector<Pair*>();
@@ -44,6 +58,10 @@ int Node::findPar(string value) {
 	}
 	
 	return -3;
+}
+
+void Node::setAntecessor(string ip, int porta) {
+    antecessor = new Cliente(ip, porta);
 }
 
 Cliente* Node::getAntecessor() {

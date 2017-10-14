@@ -29,10 +29,15 @@ void Cliente::conectar() {
     serv_addr.sin_addr.s_addr = inet_addr(ip.c_str());
     serv_addr.sin_port = htons(porta);
 
+    printf("Do you know where are you going to? %d %d", porta, serv_addr.sin_port);
+    
     conexao = socket(AF_INET, SOCK_STREAM, 0);
     if (connect(conexao, (struct sockaddr *) &serv_addr, sizeof (serv_addr)) < 0) {
         perror("Ocorreu um erro na conexão - connect");
         exit(1);
+    }
+    else{
+        printf("Conectou(%s:%d)\n", ip.c_str(), porta);
     }
 }
 
@@ -45,13 +50,16 @@ int Cliente::enviar(Mensagem* m) {
     fflush(stdout);
 
     int numBytes = 0;
-    string str = m->getCodigo() + "|" + m->getTexto();
+    stringstream ss;
+    ss << m->getCodigo() << "|" << m->getTexto();
+    string str = ss.str();
+    
     numBytes = ::send(conexao, str.c_str(), str.size(), 0);
 
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
     } else {
-        printf("Ok\n");
+        printf("Enviou(%s)\n", str.c_str());
         fflush(stdout);
     }
 
@@ -69,7 +77,7 @@ Mensagem* Cliente::receber() {
     numBytes = ::recv(conexao, msg, 1000, 0);
 
     if (numBytes > 0) {
-        printf("Ok\n");
+        printf("Recebeu(%s)\n", msg);
         fflush(stdout);
         return new Mensagem(msg);
     } else {
@@ -85,4 +93,8 @@ void Cliente::setEndereco(string ip, int porta) {
 
 string Cliente::getIp() {
     return ip;
+}
+
+int Cliente::getPorta() {
+    return porta;
 }
