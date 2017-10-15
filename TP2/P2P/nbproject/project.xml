@@ -19,6 +19,34 @@
                     <name>Release</name>
                     <type>1</type>
                 </confElem>
+                <confElem>
+                    <name>Node0</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Node1</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Node2</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Node3</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Copy_of_Node0</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Copy_of_Node1</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Copy_of_Node2</name>
+                    <type>1</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>

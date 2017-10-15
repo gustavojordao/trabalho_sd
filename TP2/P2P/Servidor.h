@@ -8,41 +8,62 @@
  * File:   Servidor.h
  * Author: gustavo
  *
- * Created on October 1, 2017, 9:36 PM
+ * Created on October 5, 2017, 9:30 PM
  */
 
 #ifndef SERVIDOR_H
 #define SERVIDOR_H
 
+#include "Mensagem.h"
+
 #include <sys/socket.h>
 #include <sys/types.h> 
 #include <netinet/in.h>
-#include <unistd.h>
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string>
+#include <iostream>
+using namespace std;
 
-class Servidor {
-public:
-    Servidor(int porta);
-    Servidor(const Servidor& orig);
-    virtual ~Servidor();
-    
-    // Inicia servidor
-    void iniciar();
-    // Aceitar conexão de cliente
-    int aceitarCliente();
-    // Encerra servidor
-    void encerrarServidor();
-    // Encerra servidor
-    void encerrarCliente();
-
+class Servidor
+{
 private:
-    int conexao;
-    int conexaoCliente;
-    
-    int porta;
+	string ip_cliente;
+	string ip_novo_cliente;
+	int porta;
 
+	int conexao;
+	int conexaoCliente;
+        int conexaoCliente_temp;
+        
+        static bool sendingBusy;
+public:
+	Servidor(int porta);
+	~Servidor();
+	
+	void iniciar();
+	void aceitar();
+	
+	void setConexao(int conexao);
+
+	int enviar(Mensagem* m);
+	Mensagem* receber();
+        Mensagem* receberDoNovoCliente();
+
+	string getIpCliente();
+	string getIpNovoCliente();
+
+	int getPorta();
+	void setPorta(int porta);
+        
+        int getConexaoCliente();
+        int getNovaConexaoCliente();
+        
+        static bool isSendingBusy();
 };
+
 
 #endif /* SERVIDOR_H */
 

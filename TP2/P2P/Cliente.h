@@ -8,12 +8,13 @@
  * File:   Cliente.h
  * Author: gustavo
  *
- * Created on October 1, 2017, 10:22 PM
+ * Created on October 5, 2017, 9:27 PM
  */
 
 #ifndef CLIENTE_H
 #define CLIENTE_H
 
+#include "Mensagem.h"
 #include <sys/socket.h>
 #include <sys/types.h> 
 #include <netinet/in.h>
@@ -21,29 +22,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string>
 
-class Cliente {
-public:
-    Cliente(char* ip_servidor, int portaServidor);
-    Cliente(const Cliente& orig);
-    virtual ~Cliente();
-    
-    // Conectar ao servidor
-    void conectarAoServidor();
-    
-    // Encerra conexao com servidor
-    void encerrarServidor();
-    
-    
+using namespace std;
+
+class Cliente
+{
 private:
+	string ip;
+	int porta;
 
-    int conexao;
-    int conexaoServidor;
-    
-    char ip_servidor[20];
-    int portaServidor;
-    
+        int conexao;
+        
+        static bool sendingBusy;
+public:
+	Cliente(string ip, int porta);
+	~Cliente();
+	
+	void conectar();
+	void desconectar();
+
+	int enviar(Mensagem* m);
+	Mensagem* receber();
+
+	void setEndereco(string ip, int porta);
+        
+        string getIp();
+        int getPorta();
+        
+        static bool isSendingBusy();
 };
+
 
 #endif /* CLIENTE_H */
 

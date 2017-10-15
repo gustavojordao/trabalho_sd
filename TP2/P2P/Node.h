@@ -8,60 +8,66 @@
  * File:   Node.h
  * Author: gustavo
  *
- * Created on October 1, 2017, 2:54 PM
+ * Created on October 5, 2017, 9:28 PM
  */
 
 #ifndef NODE_H
 #define NODE_H
 
-#include "Pair.h"
 #include "Servidor.h"
 #include "Cliente.h"
-#include <vector>
-#include <string>
 
+#include <math.h>
+#include <vector>
 using namespace std;
 
-class Node {
-public:
-    Node();
-    Node(const Node& orig);
-    virtual ~Node();
-    
-    int getId();
-    void setId(int id);
-    
-    Servidor* getAntecessor();
-    Cliente* getSucessor();
-    
-    void setConexaoAntecessor(int conexaoAntecessor);
-    void setConexaoSucessor(int conexaoSucessor);
-    
-    void desconectarAntecessor();
-    void desconectarSucessor();
-    
-    void find();
-    void store();
-    
-    void adicionarPair(Pair* p);
-    
-    // Retorna posição do Pair
-    // Retorna -1 caso não exista no array e é caracterizado como antecessor
-    // Retorna -2 caso não exista no array e é caracterizado como sucessor
-    int localizarPair(Pair* p);
-    
+class Node
+{
 private:
+	int indice;
+        int num_nodes;
+	vector<Pair*> pares;
 
-    int id;
-    
-    int conexaoAntecessor;
-    int conexaoSucessor;
-    
-    vector<Pair> pares;
-    
-    Servidor* antecessor;
-    Cliente* sucessor;
+	Cliente* antecessor;
+	Servidor* sucessor;
+	
+        string ip_antecessor;
+        int porta_antecessor;
+        int porta_sucessor;
+        
+public:
+	Node();
+	Node(int porta_sucessor);
+	Node(string ip_antecessor, int porta_antecessor, int porta_sucessor);
+	~Node();
+
+	void setIndice(int indice);
+	int getIndice();
+	
+	void incNumNodes();
+	void setNumNodes(int numNodes);
+	int getNumNodes();
+	
+	// Retorna índice do par no vetor
+	// Retorna -1 caso deve estar no antecessor
+	// Retorna -2 caso deve estar no sucessor
+	// Retorna -3 caso deveria estar neste nó mas não está
+	int findPar(string key);
+	void storePar(Pair* pair);
+        void removePar(Pair* pair);
+	vector<Pair*> getPares();
+
+        void setAntecessor(string ip, int porta);
+        
+	Cliente* getAntecessor();
+	Servidor* getSucessor();
+	
+	int getEnderecoInicial();
+	int getEnderecoFinal();
+	
+        string toString();
 };
+
 
 #endif /* NODE_H */
 
