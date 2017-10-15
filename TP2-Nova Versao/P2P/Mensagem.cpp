@@ -70,16 +70,22 @@ Mensagem* Mensagem::criarMensagemStore(int solicitante, Pair* pair) {
     return new Mensagem(Mensagem::STORE, ss.str());
 }
 
+Mensagem* Mensagem::criarMensagemAtualizacaoIndice(int indice) {
+    stringstream ss;
+    ss << indice;
+    return new Mensagem(Mensagem::ATUALIZACAO_INDICE, ss.str());
+}
+
+
 Mensagem* Mensagem::criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares) {
     // TODO: Mensagem de atualização de nós
     // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
     // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
     stringstream ss;
-    ss << inicial << "|" << num_nodes << "|";
-	for(int i=0; i<pares.size(); i++){
-            ss << pares.at(i)->getKey() << "|" << pares.at(i)->getValue();
-	}
-	
+    ss << inicial << "|" << num_nodes;
+    for(int i=0; i<pares.size(); i++){
+        ss << "|" << pares.at(i)->getKey() << "|" << pares.at(i)->getValue();
+    }
     return new Mensagem(Mensagem::ATUALIZACAO_NODE_ANT, ss.str());
 }
 
@@ -88,11 +94,12 @@ Mensagem* Mensagem::criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, 
     // Nó sucessor recebe pares (key, value) de acordo com a mudança de nó
     // Pensar no cálculo: deve seguir mesmo cálculo que estabelecimento de próximo índice
     stringstream ss;
-    ss << inicial << "|" << num_nodes << "|";
-	for(int i=0; i<pares.size(); i++){
-		ss << pares.at(i)->getKey() << "|" << pares.at(i)->getValue();
-	}
-	
+    ss << inicial << "|" << num_nodes;
+    
+    for(int i=0; i<pares.size(); i++){
+        ss << "|" << pares.at(i)->getKey() << "|" << pares.at(i)->getValue();
+    }
+    	
     return new Mensagem(Mensagem::ATUALIZACAO_NODE_SUC, ss.str());
 }
 
@@ -108,6 +115,11 @@ Mensagem* Mensagem::criarRespostaMensagemSolicitacaoPorta(int porta) {
     return new Mensagem(RESPOSTA_SOLICITACAO_PORTA, ss.str());
 }
 
+Mensagem* Mensagem::criarMensagemRespostaFindNaoEncontrado(int solicitante, string key) {
+    stringstream ss;
+    ss << solicitante << "|" << key;
+    return new Mensagem(Mensagem::RESPOSTA_FIND, ss.str());
+}
 
 int Mensagem::getCodigo() {
     return codigo;

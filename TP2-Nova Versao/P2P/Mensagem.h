@@ -42,12 +42,14 @@ public:
 	static Mensagem* criarMensagemSolicitacaoIndice();
 	static Mensagem* criarMensagemRespostaSolicitacaoIndice(int indice);
 	//static Mensagem* criarMensagemMorra();
-	static Mensagem* criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares);
+	static Mensagem* criarMensagemAtualizacaoIndice(int indice);
+        static Mensagem* criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares);
         static Mensagem* criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, vector<Pair*> pares);
         
         static Mensagem* criarMensagemSolicitacaoPorta();
         static Mensagem* criarRespostaMensagemSolicitacaoPorta(int porta);
-                
+        static Mensagem* criarMensagemRespostaFindNaoEncontrado(int solicitante, string key);
+        
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;
 	static const int STORE = 2;
@@ -59,7 +61,8 @@ public:
 	static const int ATUALIZACAO_NODE_SUC = 8;
         static const int SOLICITACAO_PORTA = 9;
         static const int RESPOSTA_SOLICITACAO_PORTA = 10;
-                
+	static const int ATUALIZACAO_INDICE = 11;
+        static const int RESPOSTA_FIND_NAO_ENCONTRADO = 12;
 	int getCodigo();
 	string getTexto();
 

@@ -29,7 +29,6 @@ pthread_t thread_rs;
 pthread_t thread_ac;
 
 Node* node;
-bool recebeNovoAntecessor;
 bool iniciaThreadServidor = false;
 
 int main(int argc, char**argv) {
@@ -84,9 +83,6 @@ int main(int argc, char**argv) {
         node->setIndice(indice);
     }*/
 
-    recebeNovoAntecessor = true;
-    
-
 /*    if (node->getAntecessor() == 0) {
         node->getSucessor()->aceitar();
 
@@ -106,8 +102,8 @@ int main(int argc, char**argv) {
     
 
     while (true) {
-    /*    // Aguarda opções find/store
-        printf("Entre com o comando:\n");
+        // Aguarda opções find/store
+        printf("\n\nEntre com o comando:\n");
         printf("find <KEY>\n");
         printf("store <KEY> <VALUE>\n>");
         //scanf("%[^\r]");
@@ -125,27 +121,73 @@ int main(int argc, char**argv) {
         string key;
         string value;
 
-        if (tokens.size() > 3) {
+        if (tokens.size() > 2) {
             if (tokens.at(0).compare("store") == 0) {
                 key = tokens.at(1);
                 int qtd_letras = tokens.at(0).length() + 1 + tokens.at(1).length();
-                value = str_linha.substr(qtd_letras);
+                value = str_linha.substr(qtd_letras+1, str_linha.length()-qtd_letras-2);
+                printf("[%s] = {%s}", key.c_str(), value.c_str());
+                fflush(stdout);
+                
+                int ind = node->findPar(key);
+                
+                if(ind >= 0){
+                    node->storePar(new Pair(key, value));
+                    printf("\n[%s] = {%s} armazenado.", key.c_str(), value.c_str());
+                    fflush(stdout);
+                }
+                else if(ind == -1){
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemStore(node->getIndice(), new Pair(key, value)));                   
+                }
+                else if(ind == -2){
+                    node->getSucessor()->enviar(Mensagem::criarMensagemStore(node->getIndice(), new Pair(key, value)));                   
+                }
+                else if(ind == -3){
+                    node->storePar(new Pair(key, value));
+                    printf("\n[%s] = {%s} armazenado.", key.c_str(), value.c_str());
+                    fflush(stdout);
+                }
             } else {
                 perror("Erro de sintaxe. Tente novamente.\n");
             }
         } else if (tokens.size() == 2) {
             if (tokens.at(0).compare("find") == 0) {
-                key = tokens.at(1);
+                key = tokens.at(1).substr(0, tokens.at(1).length()-1);
+                printf("[%s]", key.c_str());
+                fflush(stdout);
+                int ind = node->findPar(key);
+                
+                if(ind >= 0){
+                    printf("\n[%s] = {%s}", key.c_str(), node->getPares().at(ind)->getValue().c_str());
+                    fflush(stdout);
+                }
+                else if(ind == -1){
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemFind(node->getIndice(), key));                   
+                }
+                else if(ind == -2){
+                    node->getSucessor()->enviar(Mensagem::criarMensagemFind(node->getIndice(), key));                   
+                }
+                else if(ind == -3){
+                    printf("[%s] não foi encontrado.", key.c_str());
+                    fflush(stdout);
+                }
             } else {
                 perror("Erro de sintaxe. Tente novamente.\n");
             }
+        } else if(tokens.size() == 1){
+            if (tokens.at(0).substr(0, tokens.at(0).length()-1).compare("status") == 0) {
+                printf("%s", node->toString().c_str());
+                fflush(stdout);
+            } else {
+                perror("Erro de sintaxe. Tente novamente.\n");
+            }  
         } else {
             perror("Erro de sintaxe. Tente novamente.\n");
-        }*/
+        }
         
-        getchar();
+        /*getchar();
         printf("Antecessor: %d", node->getAntecessor()->getPorta());
-        printf("Sucessor: %d", node->getSucessor()->getPorta());
+        printf("Sucessor: %d", node->getSucessor()->getPorta());*/
     }
     return 0;
 }
@@ -174,7 +216,10 @@ void* thread_recebe_ant(void* arg) {
             vector<Pair*> pares;
             int i;
             int num_nodes;
-
+            int detentor;
+            vector<Pair*> paresAnt = *new vector<Pair*>();
+            vector<Pair*> paresSuc = *new vector<Pair*>();
+                
             switch (codigo) {
 
                 case Mensagem::FIND:
@@ -184,27 +229,51 @@ void* thread_recebe_ant(void* arg) {
 
                     posicao = node->findPar(key);
 
-                    if (posicao == -1) {
+                    if(posicao >= 0){
+                        Pair* pair = node->getPares().at(posicao);
+                        node->getSucessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
+                    }
+                    else if (posicao == -1) {
                         node->getAntecessor()->enviar(m);
                     } else if (posicao == -2) {
                         node->getSucessor()->enviar(m);
                     } else if (posicao == -3) {
-                        // TODO: Informa que chave não foi localizada.
-                        printf("Não foi encontrada a chave %s", key.c_str());
-                    } else {
-                        Pair* pair = node->getPares().at(posicao);
-                        node->getSucessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
-                    }
+                        if(solicitante == node->getIndice()){
+                            // TODO: Informa que chave não foi localizada.
+                            printf("Chave %s não encontrada na rede.", key.c_str());
+                            fflush(stdout);
+                        }
+                        else{
+                            node->getSucessor()->enviar(Mensagem::criarMensagemRespostaFindNaoEncontrado(solicitante, key));
+                        }
+                    } 
 
                     break;
                 case Mensagem::RESPOSTA_FIND:
+                    partes = m->getPartes();
                     solicitante = atoi(partes.at(0).c_str());
+                    detentor = atoi(partes.at(1).c_str());
+                    key = partes.at(2);
+                    value = partes.at(3);
 
                     if (solicitante == node->getIndice()) {
                         // TODO: Faz alguma coisa com o par, exibe, salva, sei lá...
-                        printf("\n%s: %s\n", key.c_str(), value.c_str());
-                        node->storePar(new Pair(key, value));
+                        printf("\n[%s] = {%s} no node %d\n", key.c_str(), value.c_str(), detentor);
+                        //node->storePar(new Pair(key, value));
                     } else {
+                        node->getSucessor()->enviar(m);
+                    }
+                    break;
+                case Mensagem::RESPOSTA_FIND_NAO_ENCONTRADO:
+                    partes = m->getPartes();
+                    solicitante = atoi(partes.at(0).c_str());
+                    key = partes.at(1);
+
+                    if(solicitante == node->getIndice()){
+                        printf("Chave %s não encontrada na rede.", key.c_str());
+                        fflush(stdout);
+                    }
+                    else {
                         node->getSucessor()->enviar(m);
                     }
                     break;
@@ -217,14 +286,15 @@ void* thread_recebe_ant(void* arg) {
                     // TODO: Linhas abaixo devem ser alocadas em storePar 
                     posicao = node->findPar(key);
 
+                    if (posicao >= 0){
+                        node->storePar(new Pair(key, value));
+                    }
                     if (posicao == -1) {
                         node->getAntecessor()->enviar(m);
                     } else if (posicao == -2) {
                         node->getSucessor()->enviar(m);
                     } else if (posicao == -3) {
-                        node->getPares().push_back(new Pair(key, value));
-                    } else {
-                        node->getPares().at(posicao) = new Pair(key, value);
+                        node->storePar(new Pair(key, value));
                     }
 
                     break;
@@ -248,8 +318,6 @@ void* thread_recebe_ant(void* arg) {
                                             break;
                      */
                 case Mensagem::NOVO_NODE:
-                    recebeNovoAntecessor = true;
-
                     partes = m->getPartes();
                     printf("Ai amor me duele tanto. Me duele tanto.%s:%s %s", partes.at(0).c_str(), partes.at(1).c_str(), m->getTexto().c_str());
                     fflush(stdout);
@@ -275,21 +343,44 @@ void* thread_recebe_ant(void* arg) {
                     indice = atoi(partes.at(0).c_str());
                     node->setIndice(indice);
                     break;
-                case Mensagem::ATUALIZACAO_NODE_ANT:
+                case Mensagem::ATUALIZACAO_INDICE:
+                    indice = atoi(m->getTexto().c_str());
+                    printf("#######INDICE: %d", indice);
+                    fflush(stdout);
+                    node->setIndice(indice);
+                    break;
+                case Mensagem::ATUALIZACAO_NODE_SUC:
                     partes = m->getPartes();
                     indice = atoi(partes.at(0).c_str());
                     num_nodes = atoi(partes.at(1).c_str());
                     pares = *new vector<Pair*>();
-                    for (i = 2; i < (partes.size() - 2) / 2; i++) {
+                    for (i = 2; i < partes.size(); i+=2) {
                         pares.push_back(new Pair(partes.at(i), partes.at(i + 1)));
                     }
 
-                    if (indice != node->getIndice()) {
-                        node->setNumNodes(num_nodes);
-                        for (i = 0; i < pares.size(); i++) {
+                    printf("TAMTAMTAMTAAAAAAM: %d", num_nodes);
+                    fflush(stdout);
+                    node->setNumNodes(num_nodes);
+                    for (i = 0; i < pares.size(); i++) {
+                        posicao = node->findPar(pares.at(i)->getKey());
+                        if(posicao == 0 || posicao == -3){
                             node->storePar(pares.at(i));
+                            pares.erase(pares.begin()+i);
+                            i--;
                         }
-                        node->getSucessor()->enviar(m);
+                    }
+                    
+                    if (indice != node->getIndice()) {
+                        
+                        for(int i=0; i<node->getPares().size(); i++){
+                            Pair* p = node->getPares().at(i);
+                            if(p->getKey().at(0) > node->getEnderecoFinal()){
+                                pares.push_back(p);
+                                node->removePar(p);
+                            }
+                        }
+                        
+                        node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(indice, num_nodes, pares));
                     }
 
                     break;
@@ -299,6 +390,7 @@ void* thread_recebe_ant(void* arg) {
                     break;
                 default:
                     printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
+                    fflush(stdout);
                     break;
             }
         }
@@ -318,6 +410,7 @@ void* thread_recebe_suc(void* arg) {
 
         vector<string> partes;
         int solicitante;
+        int detentor;
         string key;
         string value;
         int posicao;
@@ -329,7 +422,9 @@ void* thread_recebe_suc(void* arg) {
         int i;
         vector<Pair*> repasseParesAnt;
         vector<Pair*> repasseParesSuc;
-
+        vector<Pair*> paresAnt = *new vector<Pair*>();
+        vector<Pair*> paresSuc = *new vector<Pair*>();
+        
         switch (codigo) {
 
             case Mensagem::FIND:
@@ -339,27 +434,51 @@ void* thread_recebe_suc(void* arg) {
 
                 posicao = node->findPar(key);
 
-                if (posicao == -1) {
+                if(posicao >= 0){
+                    Pair* pair = node->getPares().at(posicao);
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
+                }
+                else if (posicao == -1) {
                     node->getAntecessor()->enviar(m);
                 } else if (posicao == -2) {
                     node->getSucessor()->enviar(m);
                 } else if (posicao == -3) {
-                    // TODO: Informa que chave não foi localizada.
-                    printf("Não foi encontrada a chave %s", key.c_str());
-                } else {
-                    Pair* pair = node->getPares().at(posicao);
-                    node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
-                }
+                    if(solicitante == node->getIndice()){
+                        // TODO: Informa que chave não foi localizada.
+                        printf("Chave %s não encontrada na rede.", key.c_str());
+                        fflush(stdout);
+                    }
+                    else{
+                        node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaFindNaoEncontrado(solicitante, key));
+                    }
+                } 
 
                 break;
             case Mensagem::RESPOSTA_FIND:
+                partes = m->getPartes();
                 solicitante = atoi(partes.at(0).c_str());
-
+                detentor = atoi(partes.at(1).c_str());
+                key = partes.at(2);
+                value = partes.at(3);
+                
                 if (solicitante == node->getIndice()) {
                     // TODO: Faz alguma coisa com o par, exibe, salva, sei lá...
-                    printf("\n%s: %s\n", key.c_str(), value.c_str());
-                    node->storePar(new Pair(key, value));
+                    printf("\n[%s] = {%s} no node %d\n", key.c_str(), value.c_str(), detentor);
+                    //node->storePar(new Pair(key, value));
                 } else {
+                    node->getAntecessor()->enviar(m);
+                }
+                break;
+            case Mensagem::RESPOSTA_FIND_NAO_ENCONTRADO:
+                partes = m->getPartes();
+                solicitante = atoi(partes.at(0).c_str());
+                key = partes.at(1);
+
+                if(solicitante == node->getIndice()){
+                    printf("Chave %s não encontrada na rede.", key.c_str());
+                    fflush(stdout);
+                }
+                else {
                     node->getAntecessor()->enviar(m);
                 }
                 break;
@@ -372,14 +491,15 @@ void* thread_recebe_suc(void* arg) {
                 // TODO: Linhas abaixo devem ser alocadas em storePar 
                 posicao = node->findPar(key);
 
+                if (posicao >= 0){
+                    node->storePar(new Pair(key, value));
+                }
                 if (posicao == -1) {
                     node->getAntecessor()->enviar(m);
                 } else if (posicao == -2) {
                     node->getSucessor()->enviar(m);
                 } else if (posicao == -3) {
-                    node->getPares().push_back(new Pair(key, value));
-                } else {
-                    node->getPares().at(posicao) = new Pair(key, value);
+                    node->storePar(new Pair(key, value));
                 }
 
                 break;
@@ -414,29 +534,48 @@ void* thread_recebe_suc(void* arg) {
                 }
 
                 //TODO: Enviar em ambos os sentidos
-
-                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), repasseParesAnt));
+                
+                sleep(1);
+                node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), repasseParesAnt));
+                sleep(1);
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), repasseParesSuc));
 
                 break;
-            case Mensagem::ATUALIZACAO_NODE_SUC:
-                partes = m->getPartes();
-                indice = atoi(partes.at(0).c_str());
-                num_nodes = atoi(partes.at(1).c_str());
-                pares = *new vector<Pair*>();
-                for (i = 2; i < (partes.size() - 2) / 2; i++) {
-                    pares.push_back(new Pair(partes.at(i), partes.at(i + 1)));
-                }
+                case Mensagem::ATUALIZACAO_NODE_ANT:
+                    partes = m->getPartes();
+                    indice = atoi(partes.at(0).c_str());
+                    num_nodes = atoi(partes.at(1).c_str());
+                    pares = *new vector<Pair*>();
+                    for (i = 2; i < partes.size(); i+=2) {
+                        pares.push_back(new Pair(partes.at(i), partes.at(i + 1)));
+                    }
 
-                if (indice != node->getIndice()) {
+                    printf("TAMTAMTAMTAAAAAAM: %d", num_nodes);
+                    fflush(stdout);
                     node->setNumNodes(num_nodes);
                     for (i = 0; i < pares.size(); i++) {
-                        node->storePar(pares.at(i));
+                        posicao = node->findPar(pares.at(i)->getKey());
+                        if(posicao == 0 || posicao == -3){
+                            node->storePar(pares.at(i));
+                            pares.erase(pares.begin()+i);
+                            i--;
+                        }
                     }
-                    node->getAntecessor()->enviar(m);
-                }
+                    
+                    if (indice != node->getIndice()) {
+                        
+                        for(int i=0; i<node->getPares().size(); i++){
+                            Pair* p = node->getPares().at(i);
+                            if(p->getKey().at(0) < node->getEnderecoFinal()){
+                                pares.push_back(p);
+                                node->removePar(p);
+                            }
+                        }
+                        
+                        node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(indice, num_nodes, pares));
+                    }
 
-                break;
+                    break;
                 /*			case Mensagem::RESPOSTA_SOLICITACAO_INDICE:
                                                 partes = m->getPartes();
 
@@ -451,10 +590,11 @@ void* thread_recebe_suc(void* arg) {
                 node->getAntecessor()->conectar();
                 
                 pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-                
+                                
                 break;
             default:
                 printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
+                fflush(stdout);
                 break;
         }
     }
@@ -475,20 +615,58 @@ void* thread_aceita_con(void* arg) {
         }
         if(node->getAntecessor() == NULL){
             printf("--Antecessor NULL--%d %d", node->getSucessor()->getConexaoCliente(), node->getSucessor()->getNovaConexaoCliente());
+            fflush(stdout);
             node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
-            node->incNumNodes();
+            
+            node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice()+1));
 
+            node->incNumNodes();
+                
+            vector<Pair*> paresAnt = *new vector<Pair*>();
+            vector<Pair*> paresSuc = *new vector<Pair*>();
+
+            for(int i=0; i<node->getPares().size(); i++){
+                Pair* p = node->getPares().at(i);
+                /*if(p->getKey().at(0) < node->getEnderecoInicial()){
+                    paresAnt.push_back(p);
+                }*/
+                if(p->getKey().at(0) > node->getEnderecoFinal()){
+                    paresSuc.push_back(p);
+                }
+            }
+
+            printf("SO DARLING, DARLING: %d", node->getNumNodes());
+
+            sleep(1);
+            //node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), paresAnt));
+            node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
+
+            /*for(int i=0; i<paresAnt.size(); i++){
+                Pair* p = paresAnt.at(i);
+                node->removePar(p);
+            }*/
+
+            for(int i=0; i<paresSuc.size(); i++){
+                Pair* p = paresSuc.at(i);
+                node->removePar(p);
+            }
+            
+            sleep(1);
             node->getSucessor()->enviar(Mensagem::criarMensagemSolicitacaoPorta());
         }
         else{        
             printf("--Antecessor NOT NULL--");
+            fflush(stdout);
             if(node->getSucessor()->getConexaoCliente() == node->getSucessor()->getNovaConexaoCliente()){
             printf("--Igual--");
-                node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+            fflush(stdout);
+            node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+                
             }
             else{
                 printf("--Diferente--");
-                
+                fflush(stdout);
+                        
                 Mensagem* m = node->getSucessor()->receberDoNovoCliente();
                 
                 string ip = node->getSucessor()->getIpNovoCliente();
@@ -498,7 +676,44 @@ void* thread_aceita_con(void* arg) {
 
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
 
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice()+1));
+
                 node->incNumNodes();
+                
+                vector<Pair*> paresAnt = *new vector<Pair*>();
+                vector<Pair*> paresSuc = *new vector<Pair*>();
+                
+                for(int i=0; i<node->getPares().size(); i++){
+                    Pair* p = node->getPares().at(i);
+                    if(p->getKey().at(0) < node->getEnderecoInicial()){
+                        paresAnt.push_back(p);
+                    }
+                    if(p->getKey().at(0) > node->getEnderecoFinal()){
+                        paresSuc.push_back(p);
+                    }
+                }
+                
+                printf("SO DARLING, DARLING: %d", node->getNumNodes());
+                
+                if(paresAnt.size() > 0){
+                    sleep(1);
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), paresAnt));
+                    for(int i=0; i<paresAnt.size(); i++){
+                        Pair* p = paresAnt.at(i);
+                        node->removePar(p);
+                    }
+
+                }
+                if(paresSuc.size() > 0){
+                    sleep(1);
+                    node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
+                    for(int i=0; i<paresSuc.size(); i++){
+                        Pair* p = paresSuc.at(i);
+                        node->removePar(p);
+                    }
+                }
+                
+                
             }
         }
         printf("--THIS IS THE END--");

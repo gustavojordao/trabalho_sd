@@ -42,22 +42,22 @@ Node::Node(string ip_antecessor, int porta_antecessor, int porta_sucessor) {
     this->num_nodes = 1;
 }
 
-int Node::findPar(string value) {
+int Node::findPar(string key) {
     for(int i=0; i<pares.size(); i++){
-        if(pares.at(i)->getKey().compare(value)){
+        if(pares.at(i)->getKey().compare(key) == 0){
             return i;
         }
     }
     
     // TODO: Pensar daqui para baixo
-    if(value[0] < getEnderecoInicial()){
-		return -1;
-	}
-	else if(value[0] > getEnderecoFinal()){
-		return -2;
-	}
+    if(key.at(0) < getEnderecoInicial()){
+        return -1;
+    }
+    else if(key.at(0) > getEnderecoFinal()){
+        return -2;
+    }
 	
-	return -3;
+    return -3;
 }
 
 void Node::setAntecessor(string ip, int porta) {
@@ -98,19 +98,49 @@ void Node::setIndice(int indice) {
 
 void Node::storePar(Pair* pair) {
     for(int i=0; i<pares.size(); i++){
-		if(pares.at(i)->getKey().compare(pair->getKey())){
-			pares.at(i) = pair;
-			return;
-		}
-	}
-	
-	pares.push_back(pair);
+        if(pares.at(i)->getKey().compare(pair->getKey()) == 0){
+            pares.at(i) = pair;
+            return;
+        }
+    }
+
+    pares.push_back(pair);
 }
 
+void Node::removePar(Pair* pair) {
+    int ind = findPar(pair->getKey());
+    
+    if(ind >= 0)
+        pares.erase(pares.begin()+ind);
+}
+
+
 int Node::getEnderecoInicial(){
-	return 65 + (indice*26/num_nodes) + (indice < 26%num_nodes ? 1 : 0);				
+	//return 65 + (indice*26/num_nodes) + (indice < 26%num_nodes ? 1 : 0);
+    int end = 65 + (indice*ceil(26.0/num_nodes));    
+    printf("\nEnd. inicial: %d", end);
+    fflush(stdout);
+    return end;
 }
 
 int Node::getEnderecoFinal(){
-	return 65 + ((indice+1)*26/num_nodes) + (indice+1 < 26%num_nodes ? 1 : 0);
+	//return 65 + ((indice+1)*26/num_nodes) + (indice+1 < 26%num_nodes ? 1 : 0)-1;
+    int end = min((int) (65 + ((indice+1)*ceil(26.0/num_nodes))-1),90);
+    printf("\nEnd. final: %d", end);
+    fflush(stdout);
+    return end;
+}
+
+string Node::toString() {
+    stringstream ss;
+    ss << "Node: " << indice << "\n" << "Num. nodes: " << num_nodes << "\n" 
+            << "Endereço inicial: " << getEnderecoInicial() << "\n"
+            << "Endereço final: " << getEnderecoFinal() << "\n"
+            << "Pares (" << pares.size() << "):\n";
+    for(int i=0; i<pares.size(); i++){
+        ss << "[" << pares.at(i)->getKey() << "] = " << pares.at(i)->getValue() << "\n";
+    }
+    
+    return ss.str();
+
 }

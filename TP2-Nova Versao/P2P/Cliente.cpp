@@ -13,6 +13,8 @@
 
 #include "Cliente.h"
 
+bool Cliente::sendingBusy = false;
+
 Cliente::~Cliente() {
 }
 
@@ -46,16 +48,22 @@ void Cliente::desconectar() {
 }
 
 int Cliente::enviar(Mensagem* m) {
+    sleep(1);
+    while(sendingBusy);
+    
+    sendingBusy = true;
+    
     printf("\nEnviando mensagem do cliente...");
     fflush(stdout);
 
     int numBytes = 0;
     stringstream ss;
-    ss << m->getCodigo() << "|" << m->getTexto();
+    ss << m->getCodigo() << "|" << m->getTexto() << "@";
     string str = ss.str();
     
     numBytes = ::send(conexao, str.c_str(), str.size(), 0);
-
+    fsync(conexao);
+    
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
     } else {
@@ -63,6 +71,7 @@ int Cliente::enviar(Mensagem* m) {
         fflush(stdout);
     }
 
+    sendingBusy = false;
     return numBytes;
 }
 
@@ -77,9 +86,13 @@ Mensagem* Cliente::receber() {
     numBytes = ::recv(conexao, msg, 1000, 0);
 
     if (numBytes > 0) {
-        printf("Recebeu(%s)\n", msg);
+        stringstream ss;
+        ss << msg;
+        string str = ss.str().substr(0, ss.str().find_first_of('@'));
+                
+        printf("Recebeu(%s)\n", str.c_str());
         fflush(stdout);
-        return new Mensagem(msg);
+        return new Mensagem(str);
     } else {
         perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
@@ -97,4 +110,8 @@ string Cliente::getIp() {
 
 int Cliente::getPorta() {
     return porta;
+}
+
+bool Cliente::isSendingBusy() {
+    return sendingBusy;
 }

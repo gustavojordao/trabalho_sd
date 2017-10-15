@@ -33,6 +33,8 @@ private:
 	int porta;
 
         int conexao;
+        
+        static bool sendingBusy;
 public:
 	Cliente(string ip, int porta);
 	~Cliente();
@@ -47,6 +49,8 @@ public:
         
         string getIp();
         int getPorta();
+        
+        static bool isSendingBusy();
 };
 
 

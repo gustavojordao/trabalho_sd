@@ -37,6 +37,8 @@ private:
 	int conexao;
 	int conexaoCliente;
         int conexaoCliente_temp;
+        
+        static bool sendingBusy;
 public:
 	Servidor(int porta);
 	~Servidor();
@@ -58,6 +60,8 @@ public:
         
         int getConexaoCliente();
         int getNovaConexaoCliente();
+        
+        static bool isSendingBusy();
 };
 
 

@@ -14,6 +14,8 @@
 
 #include "Servidor.h"
 
+bool Servidor::sendingBusy = false;
+
 Servidor::~Servidor() {
 }
 
@@ -49,18 +51,24 @@ void Servidor::aceitar() {
 }
 
 int Servidor::enviar(Mensagem* m) {
+    sleep(1);
+    while(sendingBusy);
+    
+    sendingBusy = true;
+    
     printf("\nEnviando mensagem do servidor...");
     fflush(stdout);
 
     stringstream ss;
     int numBytes = 0;
     
-    ss << m->getCodigo() << ss.str() << "|" << m->getTexto();
+    ss << m->getCodigo() << ss.str() << "|" << m->getTexto() << "@";
     
     string str = ss.str();
     
     numBytes = ::send(conexaoCliente, str.c_str(), str.size(), 0);
-
+    fsync(conexao);
+    
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
     } else {
@@ -68,6 +76,8 @@ int Servidor::enviar(Mensagem* m) {
         fflush(stdout);
     }
 
+    sendingBusy = false;
+    
     return numBytes;
 }
 
@@ -82,9 +92,13 @@ Mensagem* Servidor::receber() {
     numBytes = ::recv(conexaoCliente, msg, 1000, 0);
 
     if (numBytes > 0) {
-        printf("Recebeu(%s)\n", msg);
+        stringstream ss;
+        ss << msg;
+        string str = ss.str().substr(0, ss.str().find_first_of('@'));
+                
+        printf("Recebeu(%s)\n", str.c_str());
         fflush(stdout);
-        return new Mensagem(msg);
+        return new Mensagem(str);
     } else {
         perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
@@ -102,9 +116,13 @@ Mensagem* Servidor::receberDoNovoCliente() {
     numBytes = ::recv(conexaoCliente_temp, msg, 1000, 0);
 
     if (numBytes > 0) {
-        printf("RecebeuNovo(%s)\n", msg);
+        stringstream ss;
+        ss << msg;
+        string str = ss.str().substr(0, ss.str().find_first_of('@'));
+                
+        printf("RecebeuNovo(%s)\n", str.c_str());
         fflush(stdout);
-        return new Mensagem(msg);
+        return new Mensagem(str);
     } else {
         perror("\nNão foi possível receber mensagem. - recv");
         return NULL;
@@ -166,4 +184,8 @@ Servidor::Servidor(int porta) {
 
 int Servidor::getNovaConexaoCliente() {
     return this->conexaoCliente_temp;
+}
+
+bool Servidor::isSendingBusy() {
+    return sendingBusy;
 }

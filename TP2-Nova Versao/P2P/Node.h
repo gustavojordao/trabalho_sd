@@ -52,8 +52,9 @@ public:
 	// Retorna -1 caso deve estar no antecessor
 	// Retorna -2 caso deve estar no sucessor
 	// Retorna -3 caso deveria estar neste nó mas não está
-	int findPar(string value);
+	int findPar(string key);
 	void storePar(Pair* pair);
+        void removePar(Pair* pair);
 	vector<Pair*> getPares();
 
         void setAntecessor(string ip, int porta);
@@ -64,6 +65,7 @@ public:
 	int getEnderecoInicial();
 	int getEnderecoFinal();
 	
+        string toString();
 };
 
 

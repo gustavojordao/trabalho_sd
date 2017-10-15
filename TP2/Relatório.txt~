@@ -1,0 +1,21 @@
+Relatório:
+
+- Topologia em anel de modo que cada nó da rede comunica com outros dois, sendo um o antecessor e outro o sucessor.
+- As chaves consideram letras de A a Z (case insensitive, a=A e z=Z) e a quantidade de nós existentes na rede.
+	- Exemplos: 
+		- 2 nós: [0] = {A-M}, [1] = {N-Z}
+		- 3 nós: [0] = {A-I}, [1] = {J-R}, [2] = {S-Z}
+
+	- Fórmula para letra inicial do nó:
+		CHAR(65 + (indice_no*ROUNDUP(26/num_nos)))
+
+	- Fórmula para letra final do nó:
+		CHAR(MIN(65 + ((indice_no+1)*ROUNDUP(26/num_nos))-1,90))
+
+- Conexão com sucessor: nó escuta porta e aguarda conexão de cliente
+- Conexão com antecessor: cliente conecta com servidor já existente
+
+
+Dificuldades:
+
+- Protocolo TCP envia streams de dados em vez de mensagens. Foi necessário adicionar quantidade de bytes na mensagem a ser recebidos pelo outro lado.
