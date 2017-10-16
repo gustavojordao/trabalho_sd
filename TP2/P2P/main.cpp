@@ -64,11 +64,9 @@ int main(int argc, char**argv) {
         node->getSucessor()->iniciar();
         node->getAntecessor()->conectar();
 
-        string this_ip = "127.0.0.1";
-
-        node->getAntecessor()->enviar(Mensagem::criarMensagemNovoNode(this_ip, porta_sucessor));
         pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-    }        // Nó inicial da rede
+    }        
+    // Nó inicial da rede
     else {
         node->getSucessor()->iniciar();
     }
