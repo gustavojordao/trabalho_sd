@@ -1,13 +1,5 @@
 README
 
-COMO COMPILAR
-
-Acesse o diretório do código fonte pelo terminal. Note que existe um arquivo Makefile. Execute o comando make no terminal para realizar a compilação e geração de executável.
-
-O executável pode ser encontrado no subdiretório 
-
--> dist/Debug/GNU-Linux
-
 COMO EXECUTAR
 
 Cada execução do programa realiza uma conexão da máquina que está executando com o anel. Cada execução exige como parâmetros um ip e uma porta para conexão com o nó antecessor e uma porta para conexão com o nó sucessor, exceto quando a primeira máquina executa. Neste caso, apenas a porta de conexão com o nó sucessor deve ser passada.
