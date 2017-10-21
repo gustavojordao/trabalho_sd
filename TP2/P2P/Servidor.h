@@ -49,7 +49,8 @@ public:
 	void setConexao(int conexao);
 
 	int enviar(Mensagem* m);
-	Mensagem* receber();
+	int enviarParaNovoCliente(Mensagem* m);
+        Mensagem* receber();
         Mensagem* receberDoNovoCliente();
 
 	string getIpCliente();

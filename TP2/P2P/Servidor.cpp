@@ -86,6 +86,42 @@ int Servidor::enviar(Mensagem* m) {
     return numBytes;
 }
 
+int Servidor::enviarParaNovoCliente(Mensagem* m) {
+    sleep(1);
+    while (sendingBusy);
+
+    sendingBusy = true;
+
+    /*
+    printf("\nEnviando mensagem do servidor...");
+    fflush(stdout);
+     */
+
+    stringstream ss;
+    int numBytes = 0;
+
+    ss << m->getCodigo() << ss.str() << "|" << m->getTexto() << "@";
+
+    string str = ss.str();
+
+    numBytes = ::send(conexaoCliente_temp, str.c_str(), str.size(), 0);
+    fsync(conexao);
+
+    /*
+    if (numBytes <= 0) {
+        perror("\nNão foi possível enviar mensagem. - send");
+    } else {
+        printf("Enviou(%s)\n", str.c_str());
+        fflush(stdout);
+    }
+     */
+
+    sendingBusy = false;
+
+    return numBytes;
+}
+
+
 Mensagem* Servidor::receber() {
     /*
     printf("\nRecebendo mensagem no servidor...");

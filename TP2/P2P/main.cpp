@@ -626,24 +626,27 @@ void* thread_aceita_con(void* arg) {
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
             }                // Novo nó ainda não é o sucessor efetivo
             else {
+                // Envia índice do novo nó
+                node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice() + 1));
+
+                // Atualiza a quantidade de nós da rede
+                node->incNumNodes();
+                
+                // Solicita ao novo nó que informe a porta de seu servidor para que o anel seja fechado
+                node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemSolicitacaoPorta());
+
                 // Recebe mensagem do novo cliente enquanto ainda não é o sucessor
                 Mensagem* m = node->getSucessor()->receberDoNovoCliente();
-
+                
                 // Interpreta mensagem
                 string ip = node->getSucessor()->getIpNovoCliente();
-                int porta = atoi(m->getPartes().at(1).c_str());
+                int porta = atoi(m->getPartes().at(0).c_str());
 
                 // Informa nó sucessor que o novo nó será seu antecessor
                 node->getSucessor()->enviar(Mensagem::criarMensagemNovoNode(ip, porta));
 
                 // Associa novo nó como sucessor 
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
-
-                // Envia índice do novo nó
-                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice() + 1));
-
-                // Atualiza a quantidade de nós da rede
-                node->incNumNodes();
 
                 // Verifica quais entre os pares devem ser redirecionados após a introdução de novo nó
                 vector<Pair*> paresAnt = *new vector<Pair*>();
