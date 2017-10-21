@@ -31,7 +31,7 @@ void Servidor::aceitar() {
 
     struct sockaddr_in cliente_addr_aux;
     socklen_t addrlen_aux = sizeof (cliente_addr_aux);
-    getsockname(conexaoCliente_temp, (struct sockaddr *) &cliente_addr_aux, &addrlen_aux);
+    getpeername(conexaoCliente_temp, (struct sockaddr *) &cliente_addr_aux, &addrlen_aux);
 
     ip_novo_cliente = inet_ntoa(cliente_addr_aux.sin_addr);
     porta = ntohs(cliente_addr_aux.sin_port);

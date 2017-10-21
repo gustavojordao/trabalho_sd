@@ -667,13 +667,13 @@ void* thread_aceita_con(void* arg) {
                 }
 
                 // Envia pares para serem armazenados nos nós antecessores apenas se existirem                    
-                if (paresAnt.size() > 0) {
+                //if (paresAnt.size() > 0) {
                     node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), paresAnt));
-                }
+                //}
                 // Envia pares para serem armazenados nos nós sucessores apenas se existirem                    
-                if (paresSuc.size() > 0) {
+                //if (paresSuc.size() > 0) {
                     node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
-                }
+                //}
 
             }
         }
