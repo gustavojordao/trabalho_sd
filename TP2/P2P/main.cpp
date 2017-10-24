@@ -359,7 +359,7 @@ void* thread_recebe_ant(void* arg) {
                         // Verifica quais entre os pares devem ser redirecionados após a introdução de novo nó
                         for (int i = 0; i < node->getPares().size(); i++) {
                             Pair* p = node->getPares().at(i);
-                            if (p->getKey().at(0) > node->getEnderecoFinal()) {
+                            if (Pair::compareChars(p->getKey().at(0), node->getEnderecoFinal(), false) > 0) {
                                 pares.push_back(p);
                                 node->removePar(p);
                                 i--;
@@ -541,7 +541,7 @@ void* thread_recebe_suc(void* arg) {
                     // Verifica quais entre os pares devem ser redirecionados após a introdução de novo nó
                     for (int i = 0; i < node->getPares().size(); i++) {
                         Pair* p = node->getPares().at(i);
-                        if (p->getKey().at(0) < node->getEnderecoFinal()) {
+                        if (Pair::compareChars(p->getKey().at(0), node->getEnderecoFinal(), false) < 0) {
                             pares.push_back(p);
                             node->removePar(p);
                             i--;
