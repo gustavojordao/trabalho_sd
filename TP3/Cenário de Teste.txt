@@ -1,0 +1,12 @@
+Cenário de Teste:
+
+Executa nó 0
+Insere GUSTAVO em nó 0
+Insere RONALDO em nó 0
+Insere MY em nó 0
+Executa nó 1
+Verificar se nó 1 possui RONALDO e nó 0 possui GUSTAVO e MY
+Insere WHITE em nó 0 -> deve ser salvo em nó 1
+Insere BARRY em nó 1 -> deve ser salvo em nó 0
+Executa nó 2
+Verificar se nó 2 possui WHITE, nó 1 possui RONALDO e MY, e nó 0 possui GUSTAVO e BARRY
