@@ -27,7 +27,8 @@ private:
 	int indice;
         int num_nodes;
 	vector<Pair*> pares;
-
+        vector<string> nodes;
+        
 	Cliente* antecessor;
 	Servidor* sucessor;
 	
@@ -57,6 +58,15 @@ public:
         void removePar(Pair* pair);
 	vector<Pair*> getPares();
 
+        string getEnderecoAntecessor();
+        int getPortaAntecessor();
+        int getPortaSucessor();
+        
+        vector<string> getNodes();
+        void setNodes(vector<string> nodes);
+        void addNode(string node);
+        void removeNode(string node);
+        
         void setAntecessor(string ip, int porta);
         
 	Cliente* getAntecessor();

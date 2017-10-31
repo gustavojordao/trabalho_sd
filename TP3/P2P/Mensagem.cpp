@@ -84,6 +84,18 @@ Mensagem* Mensagem::criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, 
     return new Mensagem(Mensagem::ATUALIZACAO_NODE_SUC, ss.str());
 }
 
+Mensagem* Mensagem::criarMensagemAtualizacaoListaNodes(int inicial, vector<string> nodes) {
+    stringstream ss;
+    ss << inicial;
+
+    for (int i = 0; i < nodes.size(); i++) {
+        ss << "|" << nodes.at(i);
+    }
+
+    return new Mensagem(Mensagem::ATUALIZACAO_LISTA_NODES, ss.str());
+
+}
+
 Mensagem* Mensagem::criarMensagemSolicitacaoPorta() {
     stringstream ss;
     ss << "";

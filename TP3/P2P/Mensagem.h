@@ -44,6 +44,8 @@ public:
         static Mensagem* criarMensagemAtualizacaoNodeAnt(int inicial, int num_nodes, vector<Pair*> pares);
         static Mensagem* criarMensagemAtualizacaoNodeSuc(int inicial, int num_nodes, vector<Pair*> pares);
         
+        static Mensagem* criarMensagemAtualizacaoListaNodes(int inicial, vector<string> nodes);
+                
         static Mensagem* criarMensagemSolicitacaoPorta();
         static Mensagem* criarRespostaMensagemSolicitacaoPorta(int porta);
         
@@ -59,6 +61,8 @@ public:
         
         static const int SOLICITACAO_PORTA = 8;
         static const int RESPOSTA_SOLICITACAO_PORTA = 9;
+        
+        static const int ATUALIZACAO_LISTA_NODES = 10;
         
 	int getCodigo();
 	string getTexto();

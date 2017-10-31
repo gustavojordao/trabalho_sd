@@ -208,6 +208,8 @@ void* thread_recebe_ant(void* arg) {
             int i;
             int num_nodes;
             int detentor;
+            string node_it;
+            int partes_ind;
             vector<Pair*> paresAnt = *new vector<Pair*>();
             vector<Pair*> paresSuc = *new vector<Pair*>();
 
@@ -377,6 +379,33 @@ void* thread_recebe_ant(void* arg) {
 
                     // Envia porta ao nó antecessor para que o anel seja fechado 
                     node->getAntecessor()->enviar(Mensagem::criarRespostaMensagemSolicitacaoPorta(porta));
+                    break;
+                case Mensagem::ATUALIZACAO_LISTA_NODES:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    indice = atoi(partes.at(0).c_str());
+                    
+                    if(partes.size() > 0){
+                        if(node->getIndice() > 0)
+                            partes_ind = 1+node->getIndice()-1;
+                        else
+                            partes_ind = 1+node->getNumNodes()-1;
+                        
+                        node_it = partes.at(partes_ind);
+                                                
+                        if(node_it.substr(0, 9).compare("127.0.0.1")){
+                            partes.at(partes_ind) = node->getEnderecoAntecessor();
+                        }
+                        
+                        partes.erase(partes.begin());
+                    }
+                    
+                    node->setNodes(partes);
+                    
+                    if(indice != node->getIndice()){
+                        node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(indice, node->getNodes()));
+                    }
+                    
                     break;
                 default:
                     // Mensagem fora do padrão
@@ -565,6 +594,10 @@ void* thread_recebe_suc(void* arg) {
                 // Inicia thread de recebimento de mensagens do antecessor
                 pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
 
+                node->addNode(node->getEnderecoAntecessor());
+
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+                            
                 break;
             default:
                 // Mensagem fora do padrão
@@ -675,6 +708,11 @@ void* thread_aceita_con(void* arg) {
                     node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
                 //}
 
+                stringstream ss;
+                ss << ip << ":" << porta;
+                node->addNode(ss.str());
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+                                    
             }
         }
 

@@ -27,6 +27,11 @@ Node::Node(int porta_sucessor) {
     this->antecessor = NULL;
     this->sucessor = new Servidor(porta_sucessor);
     this->pares = *new vector<Pair*>();
+    
+    stringstream ss;
+    ss << "127.0.0.1:" << porta_sucessor;
+    this->nodes = *new vector<string>();
+    this->nodes.push_back(ss.str());
     this->num_nodes = 1;
 }
 
@@ -40,6 +45,7 @@ Node::Node(string ip_antecessor, int porta_antecessor, int porta_sucessor) {
     this->sucessor = new Servidor(porta_sucessor);
     this->pares = *new vector<Pair*>();
     this->num_nodes = 1;
+    this->nodes = *new vector<string>();
 }
 
 int Node::findPar(string key) {
@@ -60,6 +66,9 @@ int Node::findPar(string key) {
 }
 
 void Node::setAntecessor(string ip, int porta) {
+    this->ip_antecessor = ip;
+    this->porta_antecessor = porta;
+        
     antecessor = new Cliente(ip, porta);
 }
 
@@ -85,6 +94,26 @@ int Node::getNumNodes() {
 
 vector<Pair*> Node::getPares() {
     return pares;
+}
+
+void Node::addNode(string node) {
+    nodes.push_back(node);
+}
+
+vector<string> Node::getNodes() {
+    return nodes;
+}
+
+void Node::removeNode(string node) {
+    for(int i=0; i<nodes.size(); i++){
+        if(node.compare(nodes.at(i)) == 0){
+            nodes.erase(nodes.begin()+i);
+        }
+    }
+}
+
+void Node::setNodes(vector<string> nodes) {
+    this->nodes = nodes;
 }
 
 Servidor* Node::getSucessor() {
@@ -123,6 +152,23 @@ int Node::getEnderecoFinal() {
     return end;
 }
 
+string Node::getEnderecoAntecessor() {
+    stringstream ss;
+    
+    ss << ip_antecessor << ":" << porta_antecessor;
+    
+    return  ss.str();
+}
+
+int Node::getPortaAntecessor() {
+    return porta_antecessor;
+}
+
+int Node::getPortaSucessor() {
+    return porta_sucessor;
+}
+
+
 string Node::toString() {
     stringstream ss;
     ss << "Node: " << indice << "\n" << "Num. nodes: " << num_nodes << "\n"
@@ -132,7 +178,11 @@ string Node::toString() {
     for (int i = 0; i < pares.size(); i++) {
         ss << "[" << pares.at(i)->getKey() << "] = " << pares.at(i)->getValue() << "\n";
     }
-
+    ss << "\n\nLista de Nodes:\n";
+    for (int i = 0; i < nodes.size(); i++) {
+        ss << nodes.at(i) << "\n";
+    }
+    
     return ss.str();
 
 }
