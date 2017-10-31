@@ -49,6 +49,8 @@ public:
         static Mensagem* criarMensagemSolicitacaoPorta();
         static Mensagem* criarRespostaMensagemSolicitacaoPorta(int porta);
         
+        static Mensagem* criarMensagemNotificacaoFalha(int indice_informante, int indice_falha);
+        
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;
 	static const int RESPOSTA_FIND_NAO_ENCONTRADO = 2;
@@ -63,6 +65,8 @@ public:
         static const int RESPOSTA_SOLICITACAO_PORTA = 9;
         
         static const int ATUALIZACAO_LISTA_NODES = 10;
+        
+        static const int NOTIFICACAO_FALHA = 11;
         
 	int getCodigo();
 	string getTexto();

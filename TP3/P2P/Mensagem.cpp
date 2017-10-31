@@ -114,6 +114,12 @@ Mensagem* Mensagem::criarMensagemRespostaFindNaoEncontrado(int solicitante, stri
     return new Mensagem(Mensagem::RESPOSTA_FIND, ss.str());
 }
 
+Mensagem* Mensagem::criarMensagemNotificacaoFalha(int indice_informante, int indice_falha) {
+    stringstream ss;
+    ss << indice_informante << "|" << indice_falha;
+    return new Mensagem(Mensagem::NOTIFICACAO_FALHA, ss.str());
+}
+
 int Mensagem::getCodigo() {
     return codigo;
 }

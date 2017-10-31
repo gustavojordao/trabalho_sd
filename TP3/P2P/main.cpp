@@ -445,7 +445,10 @@ void* thread_recebe_suc(void* arg) {
         vector<Pair*> repasseParesSuc;
         vector<Pair*> paresAnt = *new vector<Pair*>();
         vector<Pair*> paresSuc = *new vector<Pair*>();
-
+        int informante;
+        int falha;
+        string endereco;
+        
         switch (codigo) {
 
             case Mensagem::FIND:
@@ -599,6 +602,45 @@ void* thread_recebe_suc(void* arg) {
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
                             
                 break;
+            case Mensagem::NOTIFICACAO_FALHA:
+                // Interpreta mensagem
+                partes = m->getPartes();
+                informante = partes.at(0);
+                falha = partes.at(1);
+                
+                node->removeNode(falha);
+                
+                if(node->getIndice() == 0){
+                    if(node->getNumNodes()-1 != falha){
+                        node->getAntecessor()->enviar(m);
+                    }
+                    else{
+                        endereco = node->getNodes().at(falha);
+                        ip = endereco.substr(0, endereco.find_first_of(':'));
+                        porta = atoi(endereco.substr(endereco.find_first_of(':')).c_str());
+                        
+                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                        node->getAntecessor()->desconectar();
+                        node->setAntecessor(ip, porta);
+                        node->getAntecessor()->conectar();
+                    }
+                }
+                else{
+                    if(node->getIndice()-1 != falha){
+                        node->getAntecessor()->enviar(m);
+                    }
+                    else{
+                        endereco = node->getNodes().at(falha);
+                        ip = endereco.substr(0, endereco.find_first_of(':'));
+                        porta = atoi(endereco.substr(endereco.find_first_of(':')).c_str());
+                        
+                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                        node->getAntecessor()->desconectar();
+                        node->setAntecessor(ip, porta);
+                        node->getAntecessor()->conectar();
+                    }
+                }
+                break;
             default:
                 // Mensagem fora do padrão
                 printf("Mensagem não identificada\nCódigo:%d\nTexto:%s", m->getCodigo(), m->getTexto().c_str());
@@ -659,6 +701,10 @@ void* thread_aceita_con(void* arg) {
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
             }                // Novo nó ainda não é o sucessor efetivo
             else {
+                // TODO: Só deve chegar aqui quando houver uma adição de um nó, lógica completamente pronta.
+                // Quando for uma remoção de nó, no momento do envio da mensagem de falha do nó, o nó que notifica aguarda uma conexão.
+                // Uma flag booleana pode ajudar a controlar isso. Se a flag estiver ativa, é remoção.
+                
                 // Envia índice do novo nó
                 node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice() + 1));
 
