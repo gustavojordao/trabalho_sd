@@ -84,6 +84,11 @@ void Node::incNumNodes() {
     num_nodes++;
 }
 
+void Node::decNumNodes() {
+    num_nodes--;
+}
+
+
 void Node::setNumNodes(int numNodes) {
     this->num_nodes = numNodes;
 }
@@ -110,6 +115,10 @@ void Node::removeNode(string node) {
             nodes.erase(nodes.begin()+i);
         }
     }
+}
+
+void Node::removeNode(int indice) {
+    nodes.erase(nodes.begin()+indice);
 }
 
 void Node::setNodes(vector<string> nodes) {

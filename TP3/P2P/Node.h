@@ -46,6 +46,7 @@ public:
 	int getIndice();
 	
 	void incNumNodes();
+        void decNumNodes();
 	void setNumNodes(int numNodes);
 	int getNumNodes();
 	
@@ -66,6 +67,7 @@ public:
         void setNodes(vector<string> nodes);
         void addNode(string node);
         void removeNode(string node);
+        void removeNode(int indice);
         
         void setAntecessor(string ip, int porta);
         
