@@ -53,7 +53,7 @@ public:
         
         static Mensagem* criarMensagemPing();
 
-        static Mensagem* criarMensagemAtualizacaoIndiceAposFalha(int inicial, int indice, int num_nodes);
+        static Mensagem* criarMensagemAtualizacaoIndiceAposFalha(int inicial, int indice_falha, int num_nodes);
         
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;

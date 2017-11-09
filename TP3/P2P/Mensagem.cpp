@@ -124,9 +124,9 @@ Mensagem* Mensagem::criarMensagemPing() {
     return new Mensagem(Mensagem::PING, "");
 }
 
-Mensagem* Mensagem::criarMensagemAtualizacaoIndiceAposFalha(int inicial, int indice, int num_nodes) {
+Mensagem* Mensagem::criarMensagemAtualizacaoIndiceAposFalha(int inicial, int indice_falha, int num_nodes) {
     stringstream ss;
-    ss << inicial << "|" << indice << "|" << num_nodes;
+    ss << inicial << "|" << indice_falha << "|" << num_nodes;
     return new Mensagem(Mensagem::ATUALIZACAO_INDICE_APOS_FALHA, ss.str());
 }
 

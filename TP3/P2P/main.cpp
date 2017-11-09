@@ -68,7 +68,6 @@ int main(int argc, char**argv) {
         node->getAntecessor()->conectar();
 
         pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-            
     }        
     // Nó inicial da rede
     else {
@@ -211,6 +210,7 @@ void* thread_recebe_ant(void* arg) {
             int porta;
             vector<Pair*> pares;
             int i;
+            int falha;
             int num_nodes;
             int detentor;
             string node_it;
@@ -341,14 +341,16 @@ void* thread_recebe_ant(void* arg) {
                     partes = m->getPartes();
                     
                     inicial = atoi(m->getPartes().at(0).c_str());
-                    indice = atoi(m->getPartes().at(1).c_str());
+                    falha = atoi(m->getPartes().at(1).c_str());
                     num_nodes = atoi(m->getPartes().at(2).c_str());
                     
-                    // Atualiza índice
-                    node->setIndice(indice);
+                    if(node->getIndice() > falha){
+                        // Atualiza índice
+                        node->setIndice(node->getIndice()-1);
+                    }
                     
-                    if(indice < num_nodes-1){
-                        node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndiceAposFalha(node->getIndice(), node->getIndice() + 1, node->getNumNodes()));
+                    if(node->getIndice() != inicial){
+                        node->getSucessor()->enviar(m);
                     }
                     break;
                 case Mensagem::ATUALIZACAO_NODE_SUC:
@@ -639,6 +641,78 @@ void* thread_recebe_suc(void* arg) {
                 informante = atoi(partes.at(0).c_str());
                 falha = atoi(partes.at(1).c_str());
                 
+                printf("\n\t\t\t\tMensagem: %d|%s", m->getCodigo(), m->getTexto().c_str());
+                fflush(stdout);
+                
+                if(falha == node->getIndice()-1 ||
+                        (falha == node->getNumNodes()-1 && node->getIndice() == 0)){
+                    if(falha == 0){
+                        endereco = node->getNodes().at(node->getNumNodes()-1);
+                    }
+                    else{
+                        endereco = node->getNodes().at(falha-1);
+                    }
+                    ip = endereco.substr(0, endereco.find_first_of(':'));
+                    porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
+printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
+fflush(stdout);
+                    node->removeNode(falha);
+
+                    // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                    node->getAntecessor()->desconectar();
+                    node->setAntecessor(ip, porta);
+                    node->getAntecessor()->conectar();
+                }
+                else{
+                    node->removeNode(falha);
+                    node->getAntecessor()->enviar(m);
+                }
+                
+/*                if(falha != node->getNumNodes()-1){
+                    if(node->getIndice()-1 != falha){
+                        node->removeNode(falha);
+                        node->getAntecessor()->enviar(m);
+                    }
+                    else{
+                        if(falha == 0){
+                            endereco = node->getNodes().at(node->getNumNodes()-1);
+                        }
+                        else{
+                            endereco = node->getNodes().at(falha-1);
+                        }
+                        ip = endereco.substr(0, endereco.find_first_of(':'));
+                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
+printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
+fflush(stdout);
+                        node->removeNode(falha);
+                        
+                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                        node->getAntecessor()->desconectar();
+                        node->setAntecessor(ip, porta);
+                        node->getAntecessor()->conectar();
+                    }
+                }
+                else{
+                    if(node->getIndice() != 0){
+                        node->removeNode(falha);
+                        node->getAntecessor()->enviar(m);                        
+                    }
+                    else{
+                        endereco = node->getNodes().at(falha-1);
+                        ip = endereco.substr(0, endereco.find_first_of(':'));
+                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
+printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
+fflush(stdout);
+                        node->removeNode(falha);
+                        
+                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                        node->getAntecessor()->desconectar();
+                        node->setAntecessor(ip, porta);
+                        node->getAntecessor()->conectar();
+                    }
+                }
+        */        
+/* Refeito               
                 if(node->getIndice() == 0){
                     if(node->getNumNodes()-1 != falha){
                         node->removeNode(falha);
@@ -666,7 +740,12 @@ fflush(stdout);
                         node->getAntecessor()->enviar(m);
                     }
                     else{
-                        endereco = node->getNodes().at(falha-1);
+                        if(falha == 0){
+                            endereco = node->getNodes().at(node->getNumNodes()-1);
+                        }
+                        else{
+                           endereco = node->getNodes().at(falha-1); 
+                        }
                         ip = endereco.substr(0, endereco.find_first_of(':'));
                         porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
                         
@@ -678,6 +757,7 @@ fflush(stdout);
                         node->getAntecessor()->conectar();
                     }
                 }
+ */
                 break;
             default:
                 // Mensagem fora do padrão
@@ -699,6 +779,10 @@ void* thread_aceita_con(void* arg) {
         // Se for a primeira execução, habilita a thread de recebimento de mensagem de sucessor
         if (iniciaThreadServidor) {
             pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
+            
+            printf("\n\t\ttomar CAFE eu vou");
+            pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
+            
             iniciaThreadServidor = false;
         }
 
@@ -731,6 +815,7 @@ void* thread_aceita_con(void* arg) {
 
             // Solicita ao novo nó que informe a porta de seu servidor para que o anel seja fechado
             node->getSucessor()->enviar(Mensagem::criarMensagemSolicitacaoPorta());
+                        
         }            // Se já houver algum nó na rede
         else {
 printf("AAAAAAA LEPO LEPO...");
@@ -739,6 +824,9 @@ fflush(stdout);
             if (node->getSucessor()->getConexaoCliente() == node->getSucessor()->getNovaConexaoCliente()) {
                 // Garante que o novo nó vai ser o nó sucessor
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
+                
+                //printf("\n\t\ttomar cafe eu vou");
+                //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
                 
             }                // Novo nó ainda não é o sucessor efetivo
             else if(!houveFalha){
@@ -809,12 +897,26 @@ fflush(stdout);
 int xd=                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
 printf("<teste>%d %d</teste>", node->getIndice(), xd);                                    
 fflush(stdout);
+
+                //printf("\n\t\ttomar cafe eu vou");
+                //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
             }
             else{
                 // TODO: Criar lógica de atualização de nós após falha. 
                 // Exemplo: nó de índice 2 falha. 
                 // 3, 4, 5 ... n-1 têm seus índices modificados e todos (0 ... n-1) os nós têm as quantidades modificadas 
                 // e consequentemente os pares.
+                
+                int falha;
+                
+                if(node->getIndice() < node->getNumNodes()-1){
+                    falha = node->getIndice()+1;
+                }
+                else{
+                    falha = 0;
+                }
+                
+                node->removeNode(falha);
                 
                 // Atualiza a quantidade de nós da rede
                 node->decNumNodes();
@@ -825,7 +927,7 @@ fflush(stdout);
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
 
                 // Envia índice do novo nó
-                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndiceAposFalha(node->getIndice(), node->getIndice() + 1, node->getNumNodes()));
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndiceAposFalha(node->getIndice(), falha, node->getNumNodes()));
                 
                 sleep(3);
                 
@@ -856,9 +958,9 @@ fflush(stdout);
                     node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
                 //}
 
+                    //printf("\n\t\ttomar cafe eu vou");
+                    //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
             }
-            
-            pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
             
         }
 
@@ -890,7 +992,7 @@ fflush(stdout);
                     node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), 0));
                 }
                 
-                break;
+                return NULL;
             }
         }
         else{
