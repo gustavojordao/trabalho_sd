@@ -31,7 +31,7 @@ DEFAULTCONF=Debug
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Debug Release Node0 Node1 Node2 Node3 Copy_of_Node0 Copy_of_Node1 Copy_of_Node2 
+ALLCONFS=Debug Release Node0 Node1 Node2 Node3 Node4 Node5 Node6 Copy_of_Node0 Copy_of_Node1 Copy_of_Node2 
 
 
 # build

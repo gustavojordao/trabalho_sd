@@ -54,6 +54,30 @@ CND_ARTIFACT_PATH_Node3=dist/Node3/GNU-Linux/p2p
 CND_PACKAGE_DIR_Node3=dist/Node3/GNU-Linux/package
 CND_PACKAGE_NAME_Node3=p2p.tar
 CND_PACKAGE_PATH_Node3=dist/Node3/GNU-Linux/package/p2p.tar
+# Node4 configuration
+CND_PLATFORM_Node4=GNU-Linux
+CND_ARTIFACT_DIR_Node4=dist/Node4/GNU-Linux
+CND_ARTIFACT_NAME_Node4=p2p
+CND_ARTIFACT_PATH_Node4=dist/Node4/GNU-Linux/p2p
+CND_PACKAGE_DIR_Node4=dist/Node4/GNU-Linux/package
+CND_PACKAGE_NAME_Node4=p2p.tar
+CND_PACKAGE_PATH_Node4=dist/Node4/GNU-Linux/package/p2p.tar
+# Node5 configuration
+CND_PLATFORM_Node5=GNU-Linux
+CND_ARTIFACT_DIR_Node5=dist/Node5/GNU-Linux
+CND_ARTIFACT_NAME_Node5=p2p
+CND_ARTIFACT_PATH_Node5=dist/Node5/GNU-Linux/p2p
+CND_PACKAGE_DIR_Node5=dist/Node5/GNU-Linux/package
+CND_PACKAGE_NAME_Node5=p2p.tar
+CND_PACKAGE_PATH_Node5=dist/Node5/GNU-Linux/package/p2p.tar
+# Node6 configuration
+CND_PLATFORM_Node6=GNU-Linux
+CND_ARTIFACT_DIR_Node6=dist/Node6/GNU-Linux
+CND_ARTIFACT_NAME_Node6=p2p
+CND_ARTIFACT_PATH_Node6=dist/Node6/GNU-Linux/p2p
+CND_PACKAGE_DIR_Node6=dist/Node6/GNU-Linux/package
+CND_PACKAGE_NAME_Node6=p2p.tar
+CND_PACKAGE_PATH_Node6=dist/Node6/GNU-Linux/package/p2p.tar
 # Copy_of_Node0 configuration
 CND_PLATFORM_Copy_of_Node0=GNU-Linux
 CND_ARTIFACT_DIR_Copy_of_Node0=dist/Copy_of_Node0/GNU-Linux

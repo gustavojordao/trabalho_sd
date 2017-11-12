@@ -65,21 +65,29 @@ int Servidor::enviar(Mensagem* m) {
     stringstream ss;
     int numBytes = 0;
 
-    ss << m->getCodigo() << ss.str() << "|" << m->getTexto() << "@";
-
+    ss << m->getCodigo();
+    
+    if(m->getTexto().compare("") != 0){
+        ss << "|" << m->getTexto();
+    }
+    
+    ss << "@";
+    
     string str = ss.str();
 
     numBytes = ::send(conexaoCliente, str.c_str(), str.size(), 0);
     fsync(conexao);
 
-    /*
+    
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
-    } else {
-        printf("Enviou(%s)\n", str.c_str());
+        printf(" -> %s", str.c_str());
         fflush(stdout);
+    } else {
+//        printf("Enviou(%s)\n", str.c_str());
+//        fflush(stdout);
     }
-     */
+     
 
     sendingBusy = false;
 
@@ -100,21 +108,29 @@ int Servidor::enviarParaNovoCliente(Mensagem* m) {
     stringstream ss;
     int numBytes = 0;
 
-    ss << m->getCodigo() << ss.str() << "|" << m->getTexto() << "@";
-
+    ss << m->getCodigo() << ss.str();
+    
+    if(m->getTexto().compare("") != 0){
+        ss << "|" << m->getTexto();
+    }
+    
+    ss << "@";
+    
     string str = ss.str();
 
     numBytes = ::send(conexaoCliente_temp, str.c_str(), str.size(), 0);
     fsync(conexao);
 
-    /*
+    
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
+        printf(" -> %s", str.c_str());
+        fflush(stdout);
     } else {
         printf("Enviou(%s)\n", str.c_str());
         fflush(stdout);
     }
-     */
+     
 
     sendingBusy = false;
 

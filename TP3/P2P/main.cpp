@@ -33,6 +33,7 @@ pthread_t thread_ps;
 Node* node;
 bool iniciaThreadServidor = false;
 bool houveFalha = false;
+bool pronto = true;
 
 int main(int argc, char**argv) {
 
@@ -197,6 +198,11 @@ void* thread_recebe_ant(void* arg) {
             if (m == NULL)
                 continue;
 
+            if (m->getCodigo() == 12)
+                continue;
+            
+            printf("\nANT: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
+            
             int codigo = m->getCodigo();
 
             vector<string> partes;
@@ -344,14 +350,20 @@ void* thread_recebe_ant(void* arg) {
                     falha = atoi(m->getPartes().at(1).c_str());
                     num_nodes = atoi(m->getPartes().at(2).c_str());
                     
+                    if(node->getIndice() != inicial){
+                        node->setNumNodes(num_nodes);
+                        node->getSucessor()->enviar(m);
+                    }
+
                     if(node->getIndice() > falha){
                         // Atualiza índice
                         node->setIndice(node->getIndice()-1);
                     }
-                    
-                    if(node->getIndice() != inicial){
-                        node->getSucessor()->enviar(m);
+
+                    if(!pronto){
+                        pronto = true;
                     }
+                    
                     break;
                 case Mensagem::ATUALIZACAO_NODE_SUC:
                     // Interpreta mensagem
@@ -393,6 +405,9 @@ void* thread_recebe_ant(void* arg) {
                         // Envia pares para serem armazenados nos nós sucessores
                         node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(indice, num_nodes, pares));
                     }
+                    else{
+                        pronto = true;                        
+                    }
 
                     break;
                 case Mensagem::SOLICITACAO_PORTA:
@@ -407,14 +422,14 @@ void* thread_recebe_ant(void* arg) {
                     partes = m->getPartes();
                     indice = atoi(partes.at(0).c_str());
 printf("Mensagem: %s", m->getTexto().c_str());                    
-                    if(partes.size() > 0){
+                    if(partes.size() > 1){
                         if(node->getIndice() > 0)
                             partes_ind = 1+node->getIndice()-1;
                         else
                             partes_ind = 1+node->getNumNodes()-1;
                         
                         node_it = partes.at(partes_ind);
-                                                
+                        
                         if(node_it.substr(0, 9).compare("127.0.0.1") == 0){
 printf("localhost: %s", node->getEnderecoAntecessor().c_str());
                             partes.at(partes_ind) = node->getEnderecoAntecessor();
@@ -460,6 +475,8 @@ void* thread_recebe_suc(void* arg) {
         if (m == NULL)
             continue;
 
+        printf("\nSUC: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
+        
         int codigo = m->getCodigo();
 
         vector<string> partes;
@@ -632,8 +649,13 @@ void* thread_recebe_suc(void* arg) {
 
                 node->addNode(node->getEnderecoAntecessor());
 
-                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
-                            
+                //node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+                    
+                // Envia pares para serem armazenados nos nós sucessores
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
+
+
+                
                 break;
             case Mensagem::NOTIFICACAO_FALHA:
                 // Interpreta mensagem
@@ -668,96 +690,6 @@ fflush(stdout);
                     node->getAntecessor()->enviar(m);
                 }
                 
-/*                if(falha != node->getNumNodes()-1){
-                    if(node->getIndice()-1 != falha){
-                        node->removeNode(falha);
-                        node->getAntecessor()->enviar(m);
-                    }
-                    else{
-                        if(falha == 0){
-                            endereco = node->getNodes().at(node->getNumNodes()-1);
-                        }
-                        else{
-                            endereco = node->getNodes().at(falha-1);
-                        }
-                        ip = endereco.substr(0, endereco.find_first_of(':'));
-                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
-printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
-fflush(stdout);
-                        node->removeNode(falha);
-                        
-                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
-                        node->getAntecessor()->desconectar();
-                        node->setAntecessor(ip, porta);
-                        node->getAntecessor()->conectar();
-                    }
-                }
-                else{
-                    if(node->getIndice() != 0){
-                        node->removeNode(falha);
-                        node->getAntecessor()->enviar(m);                        
-                    }
-                    else{
-                        endereco = node->getNodes().at(falha-1);
-                        ip = endereco.substr(0, endereco.find_first_of(':'));
-                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
-printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
-fflush(stdout);
-                        node->removeNode(falha);
-                        
-                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
-                        node->getAntecessor()->desconectar();
-                        node->setAntecessor(ip, porta);
-                        node->getAntecessor()->conectar();
-                    }
-                }
-        */        
-/* Refeito               
-                if(node->getIndice() == 0){
-                    if(node->getNumNodes()-1 != falha){
-                        node->removeNode(falha);
-                        node->getAntecessor()->enviar(m);
-                    }
-                    else{
-                        endereco = node->getNodes().at(falha-1);
-                        ip = endereco.substr(0, endereco.find_first_of(':'));
-                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
-printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
-fflush(stdout);
-                        node->removeNode(falha);
-                        
-                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
-                        node->getAntecessor()->desconectar();
-                        node->setAntecessor(ip, porta);
-                        node->getAntecessor()->conectar();
-printf("\nDeu bosta");
-fflush(stdout);
-                    }
-                }
-                else{
-                    if(node->getIndice()-1 != falha){
-                        node->removeNode(falha);
-                        node->getAntecessor()->enviar(m);
-                    }
-                    else{
-                        if(falha == 0){
-                            endereco = node->getNodes().at(node->getNumNodes()-1);
-                        }
-                        else{
-                           endereco = node->getNodes().at(falha-1); 
-                        }
-                        ip = endereco.substr(0, endereco.find_first_of(':'));
-                        porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
-                        
-                        node->removeNode(falha);
-                        
-                        // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
-                        node->getAntecessor()->desconectar();
-                        node->setAntecessor(ip, porta);
-                        node->getAntecessor()->conectar();
-                    }
-                }
- */
                 break;
             default:
                 // Mensagem fora do padrão
@@ -797,7 +729,7 @@ void* thread_aceita_con(void* arg) {
 
             // Atualiza a quantidade de nós da rede
             node->incNumNodes();
-
+            
             // Verifica quais entre os pares devem ser redirecionados após a introdução de novo nó
             vector<Pair*> paresSuc = *new vector<Pair*>();
 
@@ -810,12 +742,17 @@ void* thread_aceita_con(void* arg) {
                 }
             }
 
-            // Envia pares para serem armazenados nos nós sucessores
-            node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
-
+            pronto = false;
+            
             // Solicita ao novo nó que informe a porta de seu servidor para que o anel seja fechado
             node->getSucessor()->enviar(Mensagem::criarMensagemSolicitacaoPorta());
-                        
+
+            while(!pronto);
+            
+            // Após percorrer toda a rede, atualiza os nós da lista em todos os nós.
+            node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+
+            
         }            // Se já houver algum nó na rede
         else {
 printf("AAAAAAA LEPO LEPO...");
@@ -874,6 +811,8 @@ fflush(stdout);
                     }
                 }
 
+                pronto = false;
+                
                 // Envia pares para serem armazenados nos nós antecessores apenas se existirem                    
                 //if (paresAnt.size() > 0) {
                     node->getAntecessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeAnt(node->getIndice(), node->getNumNodes(), paresAnt));
@@ -882,7 +821,12 @@ fflush(stdout);
                 //if (paresSuc.size() > 0) {
                     node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
                 //}
-                    sleep(3);
+                    //sleep(3);
+                // TODO: Aguardar atualização de todos os nós
+                while(!pronto);
+                
+                
+                
                 stringstream ss;
                 ss << ip << ":" << porta;
                 node->addNode(ss.str());
@@ -897,7 +841,8 @@ fflush(stdout);
 int xd=                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
 printf("<teste>%d %d</teste>", node->getIndice(), xd);                                    
 fflush(stdout);
-
+                    
+                    
                 //printf("\n\t\ttomar cafe eu vou");
                 //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
             }
@@ -926,10 +871,14 @@ fflush(stdout);
                 // Associa novo nó como sucessor 
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
 
+                pronto = false;
+                
                 // Envia índice do novo nó
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndiceAposFalha(node->getIndice(), falha, node->getNumNodes()));
                 
-                sleep(3);
+                while(!pronto);
+                
+                //sleep(3);
                 
                 // Verifica quais entre os pares devem ser redirecionados após a introdução de novo nó
                 vector<Pair*> paresAnt = *new vector<Pair*>();
@@ -960,6 +909,9 @@ fflush(stdout);
 
                     //printf("\n\t\ttomar cafe eu vou");
                     //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
+                    
+                    //node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+                
             }
             
         }

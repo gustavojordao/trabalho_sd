@@ -60,20 +60,28 @@ int Cliente::enviar(Mensagem* m) {
 
     int numBytes = 0;
     stringstream ss;
-    ss << m->getCodigo() << "|" << m->getTexto() << "@";
+    ss << m->getCodigo();
+    
+    if(m->getTexto().compare("") != 0){
+        ss << "|" << m->getTexto();
+    }
+    
+    ss << "@";
     string str = ss.str();
 
     numBytes = ::send(conexao, str.c_str(), str.size(), 0);
     fsync(conexao);
 
-    /*
+    
     if (numBytes <= 0) {
         perror("\nNão foi possível enviar mensagem. - send");
+        printf(" -> %s", str.c_str());
+        fflush(stdout);
     } else {
         printf("Enviou(%s)\n", str.c_str());
         fflush(stdout);
     }
-     */
+     
 
     sendingBusy = false;
     return numBytes;
