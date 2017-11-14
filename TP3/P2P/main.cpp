@@ -201,7 +201,7 @@ void* thread_recebe_ant(void* arg) {
             if (m->getCodigo() == 12)
                 continue;
             
-            printf("\nANT: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
+            //printf("\nANT: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
             
             int codigo = m->getCodigo();
 
@@ -421,7 +421,7 @@ void* thread_recebe_ant(void* arg) {
                     // Interpreta mensagem
                     partes = m->getPartes();
                     indice = atoi(partes.at(0).c_str());
-printf("Mensagem: %s", m->getTexto().c_str());                    
+//printf("Mensagem: %s", m->getTexto().c_str());                    
                     if(partes.size() > 1){
                         if(node->getIndice() > 0)
                             partes_ind = 1+node->getIndice()-1;
@@ -431,7 +431,6 @@ printf("Mensagem: %s", m->getTexto().c_str());
                         node_it = partes.at(partes_ind);
                         
                         if(node_it.substr(0, 9).compare("127.0.0.1") == 0){
-printf("localhost: %s", node->getEnderecoAntecessor().c_str());
                             partes.at(partes_ind) = node->getEnderecoAntecessor();
                         }
                         
@@ -439,17 +438,12 @@ printf("localhost: %s", node->getEnderecoAntecessor().c_str());
                     }
 
                     node->setNodes(partes);
-printf("\ninicio ");
-fflush(stdout);
-for(int i=0; i<node->getNodes().size(); i++){
-printf("\n%s ", node->getNodes().at(i).c_str());
-fflush(stdout);
-}
-printf("\nfim ");
-fflush(stdout);                    
                     if(indice != node->getIndice()){
                         node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(indice, node->getNodes()));
                     }
+                    
+                    printf("\n----------Lista de nodes atualizada.----------\n>");
+                    fflush(stdout);
                     
                     break;
                 case Mensagem::PING:
@@ -475,7 +469,7 @@ void* thread_recebe_suc(void* arg) {
         if (m == NULL)
             continue;
 
-        printf("\nSUC: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
+        //printf("\nSUC: %d|%s\n", m->getCodigo(), m->getTexto().c_str());
         
         int codigo = m->getCodigo();
 
@@ -663,8 +657,8 @@ void* thread_recebe_suc(void* arg) {
                 informante = atoi(partes.at(0).c_str());
                 falha = atoi(partes.at(1).c_str());
                 
-                printf("\n\t\t\t\tMensagem: %d|%s", m->getCodigo(), m->getTexto().c_str());
-                fflush(stdout);
+//                printf("\n\t\t\t\tMensagem: %d|%s", m->getCodigo(), m->getTexto().c_str());
+//                fflush(stdout);
                 
                 if(falha == node->getIndice()-1 ||
                         (falha == node->getNumNodes()-1 && node->getIndice() == 0)){
@@ -676,8 +670,6 @@ void* thread_recebe_suc(void* arg) {
                     }
                     ip = endereco.substr(0, endereco.find_first_of(':'));
                     porta = atoi(endereco.substr(endereco.find_first_of(':')+1).c_str());
-printf("\nQUE ME IMPORRRRRTA: %s:%d", ip.c_str(), porta);
-fflush(stdout);
                     node->removeNode(falha);
 
                     // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
@@ -712,7 +704,6 @@ void* thread_aceita_con(void* arg) {
         if (iniciaThreadServidor) {
             pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
             
-            printf("\n\t\ttomar CAFE eu vou");
             pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
             
             iniciaThreadServidor = false;
@@ -755,8 +746,6 @@ void* thread_aceita_con(void* arg) {
             
         }            // Se já houver algum nó na rede
         else {
-printf("AAAAAAA LEPO LEPO...");
-fflush(stdout);
             // Verifica se o novo nó já é o nó sucessor
             if (node->getSucessor()->getConexaoCliente() == node->getSucessor()->getNovaConexaoCliente()) {
                 // Garante que o novo nó vai ser o nó sucessor
@@ -830,21 +819,8 @@ fflush(stdout);
                 stringstream ss;
                 ss << ip << ":" << porta;
                 node->addNode(ss.str());
-printf("\nbegin ");
-fflush(stdout);
-for(int i=0; i<node->getNodes().size(); i++){
-printf("\n%s ", node->getNodes().at(i).c_str());
-fflush(stdout);
-}
-printf("\nend ");
-fflush(stdout);
-int xd=                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
-printf("<teste>%d %d</teste>", node->getIndice(), xd);                                    
-fflush(stdout);
-                    
-                    
-                //printf("\n\t\ttomar cafe eu vou");
-                //pthread_create(&(thread_ps), NULL, thread_ping_suc, NULL);
+                node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoListaNodes(node->getIndice(), node->getNodes()));
+
             }
             else{
                 // TODO: Criar lógica de atualização de nós após falha. 
@@ -866,7 +842,7 @@ fflush(stdout);
                 // Atualiza a quantidade de nós da rede
                 node->decNumNodes();
                                 
-// Atualizar todo mundo
+                // Atualizar todo mundo
                 
                 // Associa novo nó como sucessor 
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
@@ -934,8 +910,8 @@ void* thread_ping_suc(void* arg){
             if(tentativas >= 3){
                 // Antecessor morreu
                 // Notifica sucessor que antecessor morreu
-printf("Morreu");
-fflush(stdout);
+                printf("\n----------Um node foi desconectado.----------\n>");
+                fflush(stdout);
                 houveFalha = true;
                 if(node->getIndice() < node->getNumNodes()-1) {
                     node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), node->getIndice()+1));

@@ -78,8 +78,8 @@ int Cliente::enviar(Mensagem* m) {
         printf(" -> %s", str.c_str());
         fflush(stdout);
     } else {
-        printf("Enviou(%s)\n", str.c_str());
-        fflush(stdout);
+        //printf("Enviou(%s)\n", str.c_str());
+        //fflush(stdout);
     }
      
 
