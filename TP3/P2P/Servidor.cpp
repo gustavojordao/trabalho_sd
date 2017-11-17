@@ -76,7 +76,7 @@ int Servidor::enviar(Mensagem* m) {
     string str = ss.str();
 
     numBytes = ::send(conexaoCliente, str.c_str(), str.size(), 0);
-    fsync(conexao);
+    fsync(conexaoCliente);
 
     
     if (numBytes <= 0) {
@@ -84,8 +84,10 @@ int Servidor::enviar(Mensagem* m) {
         printf(" -> %s", str.c_str());
         fflush(stdout);
     } else {
-//        printf("Enviou(%s)\n", str.c_str());
-//        fflush(stdout);
+        if(m->getCodigo() != Mensagem::PING){        
+            printf("Enviou(%s)\n", str.c_str());
+            fflush(stdout);
+        }
     }
      
 
@@ -119,7 +121,7 @@ int Servidor::enviarParaNovoCliente(Mensagem* m) {
     string str = ss.str();
 
     numBytes = ::send(conexaoCliente_temp, str.c_str(), str.size(), 0);
-    fsync(conexao);
+    fsync(conexaoCliente_temp);
 
     
     if (numBytes <= 0) {
@@ -127,8 +129,11 @@ int Servidor::enviarParaNovoCliente(Mensagem* m) {
         printf(" -> %s", str.c_str());
         fflush(stdout);
     } else {
-//        printf("Enviou(%s)\n", str.c_str());
-//        fflush(stdout);
+        if(m->getCodigo() != Mensagem::PING){        
+        
+            printf("Enviou(%s)\n", str.c_str());
+            fflush(stdout);
+        }
     }
      
 
@@ -154,10 +159,10 @@ Mensagem* Servidor::receber() {
         ss << msg;
         string str = ss.str().substr(0, ss.str().find_first_of('@'));
 
-        /*
-        printf("Recebeu(%s)\n", str.c_str());
-        fflush(stdout);
-         */
+        if(str.substr(0, 2).compare("12") != 0){
+            printf("Recebeu(%s)\n", str.c_str());
+            fflush(stdout);
+        }
         return new Mensagem(str);
     } else {
         //perror("\nNão foi possível receber mensagem. - recv");
@@ -181,10 +186,10 @@ Mensagem* Servidor::receberDoNovoCliente() {
         ss << msg;
         string str = ss.str().substr(0, ss.str().find_first_of('@'));
 
-        /*
-        printf("RecebeuNovo(%s)\n", str.c_str());
-        fflush(stdout);
-         */
+        if(str.substr(0, 2).compare("12") != 0){
+            printf("RecebeuNovo(%s)\n", str.c_str());
+            fflush(stdout);
+        }
         return new Mensagem(str);
     } else {
         //perror("\nNão foi possível receber mensagem. - recv");

@@ -1,0 +1,110 @@
+Cenário de Testes
+
+1 - Rodar Node 0
+
+	./p2p 8000
+
+2 - Rodar Node 1
+
+	./p2p 127.0.0.1 8000 8001
+
+3 - Rodar Node 2
+
+	./p2p 127.0.0.1 8001 8002
+
+4 - Rodar Node 3
+
+	./p2p 127.0.0.1 8002 8003
+
+5 - Rodar Node 4
+
+	./p2p 127.0.0.1 8003 8004
+
+6 - Rodar Node 5
+
+	./p2p 127.0.0.1 8004 8005
+
+7 - Verificar lista de nodes em todos os nodes
+
+	Todas devem ser iguais a
+	127.0.0.1:8000
+	127.0.0.1:8001
+	127.0.0.1:8002
+	127.0.0.1:8003
+	127.0.0.1:8004
+	127.0.0.1:8005
+
+6 - Matar Node 0
+
+	CTRL+C no terminal ou Botão Vermelho no NetBeans
+
+7 - Verificar lista de nodes em todos os nodes
+
+	Todas devem ser iguais a
+	127.0.0.1:8001
+	127.0.0.1:8002
+	127.0.0.1:8003
+	127.0.0.1:8004
+	127.0.0.1:8005
+
+	Os índices também devem ter diminuído
+	Node 1 -> 0
+	Node 2 -> 1
+	Node 3 -> 2
+	Node 4 -> 3
+	Node 5 -> 4
+
+8 - Matar Node 3
+
+	CTRL+C no terminal ou Botão Vermelho no NetBeans
+
+9 - Verificar lista de nodes em todos os nodes
+
+	Todas devem ser iguais a
+	127.0.0.1:8001
+	127.0.0.1:8002
+	127.0.0.1:8004
+	127.0.0.1:8005
+
+	Os índices também devem ter diminuído
+	Node 1 -> 0
+	Node 2 -> 1
+	Node 4 -> 2
+	Node 5 -> 3
+
+10 - Rodar Node 6
+
+	./p2p 127.0.0.1 8005 8006
+
+11 - Verificar lista de nodes em todos os nodes
+
+	Todas devem ser iguais a
+	127.0.0.1:8001
+	127.0.0.1:8002
+	127.0.0.1:8004
+	127.0.0.1:8005
+	127.0.0.1:8006
+
+	Os índices também devem ter diminuído
+	Node 1 -> 0
+	Node 2 -> 1
+	Node 4 -> 2
+	Node 5 -> 3
+	Node 6 -> 4
+
+12 - Matar Node 6
+
+11 - Verificar lista de nodes em todos os nodes
+
+	Todas devem ser iguais a
+	127.0.0.1:8001
+	127.0.0.1:8002
+	127.0.0.1:8004
+	127.0.0.1:8005
+
+	Os índices também devem ter diminuído
+	Node 1 -> 0
+	Node 2 -> 1
+	Node 4 -> 2
+	Node 5 -> 3
+

@@ -130,6 +130,11 @@ Mensagem* Mensagem::criarMensagemAtualizacaoIndiceAposFalha(int inicial, int ind
     return new Mensagem(Mensagem::ATUALIZACAO_INDICE_APOS_FALHA, ss.str());
 }
 
+Mensagem* Mensagem::criarMensagemRespostaAtualizacaoIndice()
+{
+    return new Mensagem(Mensagem::RESPOSTA_ATUALIZACAO_INDICE, "");
+}
+
 
 int Mensagem::getCodigo() {
     return codigo;

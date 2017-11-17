@@ -70,6 +70,7 @@ public:
         void removeNode(int indice);
         
         void setAntecessor(string ip, int porta);
+        void desconectarAntecessor();
         
 	Cliente* getAntecessor();
 	Servidor* getSucessor();

@@ -55,6 +55,8 @@ public:
 
         static Mensagem* criarMensagemAtualizacaoIndiceAposFalha(int inicial, int indice_falha, int num_nodes);
         
+        static Mensagem* criarMensagemRespostaAtualizacaoIndice();
+        
 	static const int FIND = 0;
 	static const int RESPOSTA_FIND = 1;
 	static const int RESPOSTA_FIND_NAO_ENCONTRADO = 2;
@@ -75,6 +77,8 @@ public:
         static const int PING = 12;
         
         static const int ATUALIZACAO_INDICE_APOS_FALHA = 13;
+        
+        static const int RESPOSTA_ATUALIZACAO_INDICE = 14;
         
 	int getCodigo();
 	string getTexto();

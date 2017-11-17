@@ -76,6 +76,13 @@ Cliente* Node::getAntecessor() {
     return antecessor;
 }
 
+void Node::desconectarAntecessor(){
+    this->ip_antecessor = "";
+    this->porta_antecessor = 0;
+        
+    antecessor = NULL;
+}
+
 int Node::getIndice() {
     return indice;
 }

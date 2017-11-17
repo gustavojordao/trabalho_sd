@@ -34,6 +34,7 @@ Node* node;
 bool iniciaThreadServidor = false;
 bool houveFalha = false;
 bool pronto = true;
+bool prontoAtualizacaoSuc = true;
 
 int main(int argc, char**argv) {
 
@@ -341,6 +342,8 @@ void* thread_recebe_ant(void* arg) {
 
                     // Atualiza índice
                     node->setIndice(indice);
+                    
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaAtualizacaoIndice());
                     break;
                 case Mensagem::ATUALIZACAO_INDICE_APOS_FALHA:
                     // Interpreta mensagem
@@ -406,7 +409,7 @@ void* thread_recebe_ant(void* arg) {
                         node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(indice, num_nodes, pares));
                     }
                     else{
-                        pronto = true;                        
+                        prontoAtualizacaoSuc = true;                        
                     }
 
                     break;
@@ -648,7 +651,11 @@ void* thread_recebe_suc(void* arg) {
                 // Envia pares para serem armazenados nos nós sucessores
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoNodeSuc(node->getIndice(), node->getNumNodes(), paresSuc));
 
-
+                prontoAtualizacaoSuc = false;
+                
+                while(!prontoAtualizacaoSuc);
+                
+                pronto = true;
                 
                 break;
             case Mensagem::NOTIFICACAO_FALHA:
@@ -657,8 +664,8 @@ void* thread_recebe_suc(void* arg) {
                 informante = atoi(partes.at(0).c_str());
                 falha = atoi(partes.at(1).c_str());
                 
-//                printf("\n\t\t\t\tMensagem: %d|%s", m->getCodigo(), m->getTexto().c_str());
-//                fflush(stdout);
+                printf("\n\t\t\t\tMensagem: %d|%s", m->getCodigo(), m->getTexto().c_str());
+                fflush(stdout);
                 
                 if(falha == node->getIndice()-1 ||
                         (falha == node->getNumNodes()-1 && node->getIndice() == 0)){
@@ -682,6 +689,9 @@ void* thread_recebe_suc(void* arg) {
                     node->getAntecessor()->enviar(m);
                 }
                 
+                break;
+            case Mensagem::RESPOSTA_ATUALIZACAO_INDICE:
+                pronto = true;
                 break;
             default:
                 // Mensagem fora do padrão
@@ -715,9 +725,13 @@ void* thread_aceita_con(void* arg) {
             // Associa conexão efetiva com conexão recém-aceita 
             node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
 
+            pronto = false;
+            
             // Envia índice do novo nó
             node->getSucessor()->enviar(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice() + 1));
 
+            while(!pronto);
+            
             // Atualiza a quantidade de nós da rede
             node->incNumNodes();
             
@@ -760,15 +774,23 @@ void* thread_aceita_con(void* arg) {
                 // Quando for uma remoção de nó, no momento do envio da mensagem de falha do nó, o nó que notifica aguarda uma conexão.
                 // Uma flag booleana pode ajudar a controlar isso. Se a flag estiver ativa, é remoção.
                 
+                pronto = false;
+            
                 // Envia índice do novo nó
                 node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemAtualizacaoIndice(node->getIndice() + 1));
 
+                while(!pronto);
+            
                 // Atualiza a quantidade de nós da rede
                 node->incNumNodes();
+                
+                pronto = false;
                 
                 // Solicita ao novo nó que informe a porta de seu servidor para que o anel seja fechado
                 node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemSolicitacaoPorta());
 
+                while(!pronto);
+                
                 // Recebe mensagem do novo cliente enquanto ainda não é o sucessor
                 Mensagem* m = node->getSucessor()->receberDoNovoCliente();
                 
@@ -913,13 +935,26 @@ void* thread_ping_suc(void* arg){
                 printf("\n----------Um node foi desconectado.----------\n>");
                 fflush(stdout);
                 houveFalha = true;
-                if(node->getIndice() < node->getNumNodes()-1) {
-                    node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), node->getIndice()+1));
+                if(node->getNumNodes() > 2){
+                    if(node->getIndice() < node->getNumNodes()-1) {
+                        node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), node->getIndice()+1));
+                    }
+                    else {
+                        node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), 0));
+                    }
                 }
-                else {
-                    node->getAntecessor()->enviar(Mensagem::criarMensagemNotificacaoFalha(node->getIndice(), 0));
+                else{
+                    if(node->getIndice() == 0){
+                        node->removeNode(1);
+                    }
+                    else if(node->getIndice() == 1){
+                        node->removeNode(0);
+                    }
+                    node->desconectarAntecessor();
                 }
-                
+                printf("\n----------Notificado----------\n>");
+                fflush(stdout);
+                                
                 return NULL;
             }
         }

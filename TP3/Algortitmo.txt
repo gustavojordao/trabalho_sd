@@ -1,0 +1,35 @@
+Conexao
+
+Servidor
+
+Evento: Recebe conexao
+
+	- Adiciona na lista
+	- Envia mensagem com o indice
+	- Envia mensagem com a lista de nodes
+	- Envia mensagem com os pares
+
+Evento: Identifica falha
+
+	- Tenta conectar com o node seguinte ao da falha
+		- Se falhar, tenta com o seguinte até encontrar alguém
+		- Se o seguinte for o próprio IP, todos morreram
+	- Atualiza a lista
+	- Envia mensagem de atualização de índice
+	- Envia mensagem de atualização de lista de nodes
+
+--------------------------------------
+
+Cliente
+
+Evento: Recebe índice
+
+Evento: Recebe lista de nodes
+
+	- Atualiza lista de nodes e reenvia se não for o último
+
+Evento: Recebe lista de pares
+
+	- Atualiza lista de pares e reenvia se não for o último
+
+--------------------------------------
