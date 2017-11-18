@@ -273,6 +273,14 @@ Servidor::Servidor(int porta) {
     this->ip_novo_cliente = "";
 }
 
+void Servidor::resetConexao()
+{
+    this->conexaoCliente = -1;
+    this->conexaoCliente_temp = -1;
+    this->ip_cliente = "";
+    this->ip_novo_cliente = "";
+}
+
 int Servidor::getNovaConexaoCliente() {
     return this->conexaoCliente_temp;
 }

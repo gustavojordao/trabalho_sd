@@ -24,13 +24,13 @@ void* thread_recebe_ant(void* arg);
 void* thread_recebe_suc(void* arg);
 void* thread_aceita_con(void* arg);
 void* thread_aceita_falha(void* arg);
-void* thread_ping_suc(void* arg);
+void* thread_ping_ant(void* arg);
 
 pthread_t thread_ra;
 pthread_t thread_rs;
 pthread_t thread_ac;
 pthread_t thread_af;
-pthread_t thread_ps;
+pthread_t thread_pa;
 
 Node* node;
 bool iniciaThreadServidor = false;
@@ -44,6 +44,7 @@ bool atualiza_indices = true;
 bool notifica_node = true;
 bool identifica = true;
 
+bool primeiro_sucessor = true;
 bool primeira_conexao = true;
 
 int tipo_node;        
@@ -83,13 +84,15 @@ int main(int argc, char**argv) {
         node->getAntecessor()->enviar(Mensagem::criarMensagemIdentifica(1));
 
         pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-        //pthread_create(&(thread_af), NULL, thread_aceita_falha, NULL);
+        pthread_create(&(thread_pa), NULL, thread_ping_ant, NULL);
+        
     }        
     // Nó inicial da rede
     else {
         node->getSucessor()->iniciar();
     }
 
+    tipo_node = 1;
     primeira_conexao = node->getAntecessor() == NULL;
     iniciaThreadServidor = true;
     pthread_create(&(thread_rs), NULL, thread_recebe_suc, NULL);
@@ -327,10 +330,10 @@ void* thread_recebe_suc(void* arg) {
                     node->getAntecessor()->conectar();
                     node->getAntecessor()->enviar(Mensagem::criarMensagemIdentifica(3));
                     pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-                    //pthread_create(&(thread_af), NULL, thread_aceita_falha, NULL);
+                    pthread_create(&(thread_pa), NULL, thread_ping_ant, NULL);
                     tipo_node = 1;
                 }
-                else if(tipo_node == 1){
+                else{
                 //else{
                     // Notifica próximo node que receberá um novo antecessor
                     notifica_node = false;
@@ -373,12 +376,25 @@ void* thread_aceita_con(void* arg) {
 
         // Aceita conexão de novo nó sucessor
         node->getSucessor()->aceitar();
-        identifica = false;
-        while(!identifica);
         
-        if(tipo_node == 1 && node->getAntecessor() == NULL){
-          
+        primeiro_sucessor = node->getSucessor()->getConexaoCliente() == node->getSucessor()->getNovaConexaoCliente();
+        
+        if(primeiro_sucessor){
+            identifica = false;
+            while(!identifica);
+        }
+        else{
+            Mensagem* m = node->getSucessor()->receberDoNovoCliente();
+            
+            vector<string> partes;
+            partes = m->getPartes();
+            tipo_node = atoi(partes.at(0).c_str());
+        }
+            
+        if(tipo_node == 1 && primeiro_sucessor){
         //if(node->getAntecessor() == NULL){
+            printf("qqqq");
+            fflush(stdout);
             solicita_porta = false;
             node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemSolicitaPorta());            
             while(!solicita_porta);
@@ -395,40 +411,52 @@ void* thread_aceita_con(void* arg) {
             node->getSucessor()->enviar(Mensagem::criarMensagemAtualizaIndices(node->getIndice(), (node->getIndice()+1)%node->getNumNodes()));
             while(!atualiza_indices);
             
+            tipo_node = 1;
             // Indices atualizados em todos os nodes
         }
-        else if(tipo_node == 1 && node->getAntecessor() != NULL){
+        else if(tipo_node == 1 && !primeiro_sucessor){
+            printf("rrrr");
+            fflush(stdout);
         //else{
         //    if(primeira_conexao){
+                //solicita_porta = false;
                 node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemSolicitaPorta());            
-
+                //while(!solicita_porta);
+            
                 // Aguardando Mensagem de AckSolicitacaoPorta
-                Mensagem* m = node->getSucessor()->receberDoNovoCliente();
+                Mensagem* m;
+                do{
+printf("zzzz");                
+fflush(stdout);
+                    m = node->getSucessor()->receberDoNovoCliente();
+printf("codigo: %s", m->getTexto().c_str());
+fflush(stdout);
+                }
+                while(m->getCodigo() != Mensagem::ACK_SOLICITA_PORTA);
                 
+printf("aaaa%s", m->getTexto().c_str());
+fflush(stdout);
                 vector<string> partes = m->getPartes();
                 int porta = atoi(partes.at(0).c_str());
                 string endereco = partes.at(1);
+printf("bbbb");                
+fflush(stdout);
                 
                 stringstream ss;
                 ss << node->getSucessor()->getIpNovoCliente() << ":" << porta;
-                
-                // Notifica próximo node que receberá um novo antecessor
-                //notifica_node = false;
-                node->getSucessor()->enviar(Mensagem::criarMensagemNotificaNode(node->getSucessor()->getIpNovoCliente(), porta));
-                node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
-                
-                // Aguardando Mensagem de AckNotificacaoNode
-                m = node->getSucessor()->receberDoNovoCliente();
-                
-                //while(!notifica_node);
-
+printf("cccc");                
+fflush(stdout);
                 node->getNodes().at(node->getIndice()) = endereco;
                 node->addNode(node->getIndice()+1, ss.str());
+printf("dddd");                
+fflush(stdout);
                 
-                //solicita_porta = true;
+                // Notifica próximo node que receberá um novo antecessor
+//                notifica_node = false;
+                node->getSucessor()->enviar(Mensagem::criarMensagemNotificaNode(node->getSucessor()->getIpNovoCliente(), porta));
+//                while(!notifica_node);
+                node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
                 
-                // Lista de nodes atualizada neste node, enviar para o próximo
-            
                 atualiza_lista_nodes = false;
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizaListaNodes(node->getIndice(), node->getNodes()));
                 while(!atualiza_lista_nodes);
@@ -439,6 +467,7 @@ void* thread_aceita_con(void* arg) {
                 node->getSucessor()->enviar(Mensagem::criarMensagemAtualizaIndices(node->getIndice(), (node->getIndice()+1)%node->getNumNodes()));
                 while(!atualiza_indices);
 
+                tipo_node = 1;
                 // Indices atualizados em todos os nodes
         }
         else if(tipo_node == 2){
@@ -446,6 +475,7 @@ void* thread_aceita_con(void* arg) {
                 node->getSucessor()->setConexao(node->getSucessor()->getNovaConexaoCliente());
                 node->getAntecessor()->enviar(Mensagem::criarMensagemAckNotificaNode());
                 primeira_conexao = true;
+                tipo_node = 1;
             //}
         }
         else if(tipo_node == 3){
@@ -477,7 +507,7 @@ void* thread_aceita_con(void* arg) {
     
 }*/
 
-void* thread_ping_suc(void* arg){
+void* thread_ping_ant(void* arg){
     
     int tentativas = 0;
     
@@ -485,8 +515,8 @@ void* thread_ping_suc(void* arg){
         
         int result = node->getAntecessor()->enviar(Mensagem::criarMensagemPing());
         
-        printf("\nResultado: %d", result);
-        fflush(stdout);
+        //printf("\nResultado: %d", result);
+        //fflush(stdout);
         
         if(result <= 0){
             tentativas++;
@@ -533,6 +563,9 @@ void* thread_ping_suc(void* arg){
 
                         // Lista de nodes atualizada em todos os nodes, atualizar índices em todos os nodes
 
+                        if(node->getIndice()-1 >= 0)
+                            node->setIndice(node->getIndice()-1);
+                        
                         atualiza_indices = false;
                         node->getSucessor()->enviar(Mensagem::criarMensagemAtualizaIndices(node->getIndice(), (node->getIndice()+1)%node->getNumNodes()));
                         while(!atualiza_indices);
@@ -542,22 +575,24 @@ void* thread_ping_suc(void* arg){
                     else{
                         node->setIndice(0);
                         node->desconectarAntecessor();
+                        node->getSucessor()->resetConexao();
                     }
                                     
                 }
                 else{
-                    if(node->getIndice() == 0){
-                        node->removeNode(1);
-                    }
-                    else if(node->getIndice() == 1){
-                        node->removeNode(0);
-                    }
+                    node->removeNode((node->getIndice()+1)%node->getNumNodes());
+                    
+                    if(node->getIndice()-1 >= 0)
+                        node->setIndice(node->getIndice()-1);
+                    
+                    node->getSucessor()->resetConexao();
                     node->desconectarAntecessor();
+                        
+                    return NULL;
                 }
                 printf("\n----------Notificado----------\n>");
                 fflush(stdout);
-                                
-                return NULL;
+                            
             }
         }
         else{

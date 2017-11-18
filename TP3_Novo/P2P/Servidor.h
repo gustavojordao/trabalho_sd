@@ -64,6 +64,8 @@ public:
         int getNovaConexaoCliente();
         
         static bool isSendingBusy();
+        
+        void resetConexao();
 };
 
 
