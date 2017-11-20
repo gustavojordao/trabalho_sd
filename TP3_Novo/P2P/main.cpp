@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <pthread.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -233,7 +234,127 @@ void* thread_recebe_ant(void* arg) {
             int inicial;
             int indice;
             
+            int solicitante;
+            string key;
+            string value;
+            int posicao;
+            string ip;
+            vector<Pair*> pares;
+            int i;
+            int detentor;
+            vector<Pair*> paresAnt = *new vector<Pair*>();
+            vector<Pair*> paresSuc = *new vector<Pair*>();
+            
             switch (codigo) {
+                case Mensagem::FIND:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    solicitante = atoi(partes.at(0).c_str());
+                    key = partes.at(1);
+
+                    // Verifica se a chave foi encontrada ou se a busca continua
+                    posicao = node->findPar(key);
+
+                    // Chave encontrada, envia resultado ao nó que fez a requisição
+                    if (posicao >= 0) {
+                        Pair* pair = node->getPares().at(posicao);
+                        node->getSucessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
+                    }                        
+                    // Chave não encontrada, possivelmente localizada nos nós antecessores
+                    else if (posicao == -1) {
+                        node->getAntecessor()->enviar(m);
+                    }                        
+                    // Chave não encontrada, possivelmente localizada nos nós sucessores
+                    else if (posicao == -2) {
+                        node->getSucessor()->enviar(m);
+                    }
+                    // Chave não encontrada, não foi inserida na rede
+                    else if (posicao == -3) {
+                        // Este foi o nó que fez a requisição, portanto exibe o resultado da busca
+                        if (solicitante == node->getIndice()) {
+                            printf("Chave %s não encontrada na rede.", key.c_str());
+                            fflush(stdout);
+                        }                            
+                        // Informa o nó que fez a requisição que a chave não foi encontrada
+                        else {
+                            node->getSucessor()->enviar(Mensagem::criarMensagemRespostaFindNaoEncontrado(solicitante, key));
+                        }
+                    }
+
+                    break;
+                case Mensagem::RESPOSTA_FIND:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    solicitante = atoi(partes.at(0).c_str());
+                    detentor = atoi(partes.at(1).c_str());
+                    key = partes.at(2);
+                    value = partes.at(3);
+
+                    // Se for o nó que fez a requisição, exibe o resultado
+                    if (solicitante == node->getIndice()) {
+                        printf("\n[%s] = {%s} no node %d\n", key.c_str(), value.c_str(), detentor);
+                        fflush(stdout);
+                    }
+                    // Se for outro nó que fez a requisição, envia o resultado para o próximo
+                    else {
+                        node->getSucessor()->enviar(m);
+                    }
+                    break;
+                case Mensagem::RESPOSTA_FIND_NAO_ENCONTRADO:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    solicitante = atoi(partes.at(0).c_str());
+                    key = partes.at(1);
+
+                    // Se for o nó que fez a requisição, exibe o resultado
+                    if (solicitante == node->getIndice()) {
+                        printf("Chave %s não encontrada na rede.", key.c_str());
+                        fflush(stdout);
+                    }                        // Se for outro nó que fez a requisição, envia o resultado para o sucessor
+                    else {
+                        node->getSucessor()->enviar(m);
+                    }
+                    break;
+                case Mensagem::STORE:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    solicitante = atoi(partes.at(0).c_str());
+                    key = partes.at(1);
+                    value = partes.at(2);
+
+                    // Verifica se a chave deve ser armazenada neste nó
+                    posicao = node->findPar(key);
+
+                    // Chave encontrada, atualiza valor
+                    if (posicao >= 0) {
+                        node->storePar(new Pair(key, value));
+                    }
+                    // Chave não encontrada, armazenamento nos antecessores
+                    if (posicao == -1) {
+                        node->getAntecessor()->enviar(m);
+                    }
+                    // Chave não encontrada, armazenamento nos sucessores
+                    else if (posicao == -2) {
+                        node->getSucessor()->enviar(m);
+                    }                        
+                    // Chave não encontrada, armazena chave e valor
+                    else if (posicao == -3) {
+                        node->storePar(new Pair(key, value));
+                    }
+
+                    break;
+                case Mensagem::NOVO_NODE:
+                    // Interpreta mensagem
+                    partes = m->getPartes();
+                    ip = partes.at(0);
+                    porta = atoi(partes.at(1).c_str());
+
+                    // Desfaz conexão com o antecessor e adiciona nova conexão de antecessor
+                    node->getAntecessor()->desconectar();
+                    node->setAntecessor(ip, porta);
+                    node->getAntecessor()->conectar();
+
+                    break;
                 case Mensagem::SOLICITA_PORTA:
                     primeira_conexao = false;
                     
@@ -243,7 +364,7 @@ void* thread_recebe_ant(void* arg) {
                         inicia_thread_ping = false;
                     }
                     else{
-                        pthread_exit(&(thread_pa));
+                        //pthread_cancel(thread_pa);
                     }
                     
                     node->getAntecessor()->enviar(Mensagem::criarMensagemAckSolicitaPorta(porta, node->getEnderecoAntecessor()));
@@ -322,9 +443,114 @@ void* thread_recebe_suc(void* arg) {
         string endereco;        
         int porta;
         
+        int solicitante;
+        int detentor;
+        string key;
+        string value;
+        int posicao;
+        string ip;
+        vector<Pair*> pares;
+        vector<Pair*> repasseParesAnt;
+        vector<Pair*> repasseParesSuc;
+        vector<Pair*> paresAnt = *new vector<Pair*>();
+        vector<Pair*> paresSuc = *new vector<Pair*>();
+        
         stringstream ss;
         
         switch (codigo) {
+            case Mensagem::FIND:
+                // Interpreta mensagem
+                partes = m->getPartes();
+                solicitante = atoi(partes.at(0).c_str());
+                key = partes.at(1);
+
+                // Verifica se a chave foi encontrada ou se a busca continua
+                posicao = node->findPar(key);
+
+                // Chave encontrada, envia resultado ao nó que fez a requisição
+                if (posicao >= 0) {
+                    Pair* pair = node->getPares().at(posicao);
+                    node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaFind(solicitante, node->getIndice(), pair));
+                }                    // Chave não encontrada, possivelmente localizada nos nós antecessores
+                else if (posicao == -1) {
+                    node->getAntecessor()->enviar(m);
+                }                    // Chave não encontrada, possivelmente localizada nos nós sucessores
+                else if (posicao == -2) {
+                    node->getSucessor()->enviar(m);
+                }
+                    // Chave não encontrada, não foi inserida na rede
+                else if (posicao == -3) {
+                    // Este foi o nó que fez a requisição, portanto exibe o resultado da busca
+                    if (solicitante == node->getIndice()) {
+                        printf("Chave %s não encontrada na rede.", key.c_str());
+                        fflush(stdout);
+                    }                        // Informa o nó que fez a requisição que a chave não foi encontrada
+                    else {
+                        node->getAntecessor()->enviar(Mensagem::criarMensagemRespostaFindNaoEncontrado(solicitante, key));
+                    }
+                }
+
+                break;
+            case Mensagem::RESPOSTA_FIND:
+                // Interpreta mensagem
+                partes = m->getPartes();
+                solicitante = atoi(partes.at(0).c_str());
+                detentor = atoi(partes.at(1).c_str());
+                key = partes.at(2);
+                value = partes.at(3);
+
+                // Se for o nó que fez a requisição, exibe o resultado
+                if (solicitante == node->getIndice()) {
+                    printf("\n[%s] = {%s} no node %d\n", key.c_str(), value.c_str(), detentor);
+                    fflush(stdout);
+                }
+                    // Se for outro nó que fez a requisição, envia o resultado para o próximo
+                else {
+                    node->getAntecessor()->enviar(m);
+                }
+                break;
+            case Mensagem::RESPOSTA_FIND_NAO_ENCONTRADO:
+                // Interpreta mensagem
+                partes = m->getPartes();
+                solicitante = atoi(partes.at(0).c_str());
+                key = partes.at(1);
+
+                // Se for o nó que fez a requisição, exibe o resultado
+                if (solicitante == node->getIndice()) {
+                    printf("Chave %s não encontrada na rede.", key.c_str());
+                    fflush(stdout);
+                }                    // Se for outro nó que fez a requisição, envia o resultado para o antecessor
+                else {
+                    node->getAntecessor()->enviar(m);
+                }
+                break;
+            case Mensagem::STORE:
+                // Interpreta mensagem
+                partes = m->getPartes();
+                solicitante = atoi(partes.at(0).c_str());
+                key = partes.at(1);
+                value = partes.at(2);
+
+                // Verifica se a chave deve ser armazenada neste nó
+                posicao = node->findPar(key);
+
+                // Chave encontrada, atualiza valor
+                if (posicao >= 0) {
+                    node->storePar(new Pair(key, value));
+                }
+                // Chave não encontrada, armazenamento nos antecessores
+                if (posicao == -1) {
+                    node->getAntecessor()->enviar(m);
+                }                    // Chave não encontrada, armazenamento nos sucessores
+                else if (posicao == -2) {
+                    node->getSucessor()->enviar(m);
+                }                    // Chave não encontrada, armazena chave e valor
+                else if (posicao == -3) {
+                    node->storePar(new Pair(key, value));
+                }
+
+                break;
+        
             case Mensagem::ACK_SOLICITA_PORTA:
                 partes = m->getPartes();
                 porta = atoi(partes.at(0).c_str());
@@ -403,8 +629,6 @@ void* thread_aceita_con(void* arg) {
             
         if(tipo_node == 1 && primeiro_sucessor){
         //if(node->getAntecessor() == NULL){
-            printf("qqqq");
-            fflush(stdout);
             solicita_porta = false;
             node->getSucessor()->enviarParaNovoCliente(Mensagem::criarMensagemSolicitaPorta());            
             while(!solicita_porta);
@@ -425,8 +649,6 @@ void* thread_aceita_con(void* arg) {
             // Indices atualizados em todos os nodes
         }
         else if(tipo_node == 1 && !primeiro_sucessor){
-            printf("rrrr");
-            fflush(stdout);
         //else{
         //    if(primeira_conexao){
                 //solicita_porta = false;
