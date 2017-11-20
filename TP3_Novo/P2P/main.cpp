@@ -46,6 +46,7 @@ bool identifica = true;
 
 bool primeiro_sucessor = true;
 bool primeira_conexao = true;
+bool inicia_thread_ping = true;
 
 int tipo_node;        
 
@@ -84,7 +85,6 @@ int main(int argc, char**argv) {
         node->getAntecessor()->enviar(Mensagem::criarMensagemIdentifica(1));
 
         pthread_create(&(thread_ra), NULL, thread_recebe_ant, NULL);
-        pthread_create(&(thread_pa), NULL, thread_ping_ant, NULL);
         
     }        
     // Nó inicial da rede
@@ -238,7 +238,17 @@ void* thread_recebe_ant(void* arg) {
                     primeira_conexao = false;
                     
                     porta = node->getPortaSucessor();
+                    
+                    if(inicia_thread_ping){
+                        inicia_thread_ping = false;
+                    }
+                    else{
+                        pthread_exit(&(thread_pa));
+                    }
+                    
                     node->getAntecessor()->enviar(Mensagem::criarMensagemAckSolicitaPorta(porta, node->getEnderecoAntecessor()));
+                    
+                    pthread_create(&(thread_pa), NULL, thread_ping_ant, NULL);
                     break;
                 case Mensagem::ATUALIZA_LISTA_NODES:
                     partes = m->getPartes();
@@ -425,31 +435,19 @@ void* thread_aceita_con(void* arg) {
             
                 // Aguardando Mensagem de AckSolicitacaoPorta
                 Mensagem* m;
-                do{
-printf("zzzz");                
-fflush(stdout);
+//                do{
                     m = node->getSucessor()->receberDoNovoCliente();
-printf("codigo: %s", m->getTexto().c_str());
-fflush(stdout);
-                }
-                while(m->getCodigo() != Mensagem::ACK_SOLICITA_PORTA);
+//                }
+//                while(m->getCodigo() != Mensagem::ACK_SOLICITA_PORTA);
                 
-printf("aaaa%s", m->getTexto().c_str());
-fflush(stdout);
                 vector<string> partes = m->getPartes();
                 int porta = atoi(partes.at(0).c_str());
                 string endereco = partes.at(1);
-printf("bbbb");                
-fflush(stdout);
                 
                 stringstream ss;
                 ss << node->getSucessor()->getIpNovoCliente() << ":" << porta;
-printf("cccc");                
-fflush(stdout);
                 node->getNodes().at(node->getIndice()) = endereco;
                 node->addNode(node->getIndice()+1, ss.str());
-printf("dddd");                
-fflush(stdout);
                 
                 // Notifica próximo node que receberá um novo antecessor
 //                notifica_node = false;
